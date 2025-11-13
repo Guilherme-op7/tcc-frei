@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { getAuthentication } from '../utils/jwt.js';
 import * as pacienteService from '../services/PacienteService.js';
+import { buscarPacientePorId } from '../repository/PacienteRepository.js';
 
 const endpoints = Router();
 const autenticador = getAuthentication();
 
 
-endpoints.post('/pacientes', autenticador, async (req, resp) => {
+endpoints.post('/pacientes', async (req, resp) => {
   try {
     let id = await pacienteService.inserirPaciente(req.body);
 
@@ -44,6 +45,20 @@ endpoints.get('/pacientes/nome', autenticador, async (req, resp) => {
   } 
 
   catch (err) {
+    resp.status(400).send({ erro: err.message });
+  }
+});
+
+endpoints.get('/pacientes/:id', async (req, resp) => {
+  try {
+    const id = req.params.id;
+    const paciente = await buscarPacientePorId(id);
+
+    if (!paciente)
+      return resp.status(404).send({ erro: 'Paciente não encontrado.' });
+
+    resp.send(paciente);
+  } catch (err) {
     resp.status(400).send({ erro: err.message });
   }
 });

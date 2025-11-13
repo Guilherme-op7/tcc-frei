@@ -55,6 +55,16 @@ export async function buscarPacientePorCpf(cpf) {
 }
 
 
+export async function buscarPacientePorId(id) {
+  const comando = `
+    SELECT * FROM pacientes
+    WHERE id = ?;
+  `;
+  const [linhas] = await connection.query(comando, [id]);
+  return linhas[0];
+}
+
+
 
 export async function atualizarPaciente(id, paciente) {
   const comando = `
