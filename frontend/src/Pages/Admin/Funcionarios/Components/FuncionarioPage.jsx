@@ -10,7 +10,6 @@ import TabelaFuncionarios from "./TabelaFuncionario";
 import EstadoVazio from "./EstadoVazio";
 import CadastrarFuncionarioModal from "../EditarModal/CadastrarFuncionarioModal";
 import EditarFuncionarioModal from "../EditarModal/EditarFuncionariosModal";
-import CadastrarMedicoModal from "../EditarModal/CadastrarMedicoModal";
 
 import "../Styles/FuncionariosPage.scss"
 
@@ -21,7 +20,6 @@ export default function FuncionariosPage() {
   const [loading, setLoading] = useState(true);
   const [sidebarAberta, setSidebarAberta] = useState(false);
   const [modalCadastrarAberto, setModalCadastrarAberto] = useState(false);
-  const [modalMedicoAberto, setModalMedicoAberto] = useState(false);
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null);
   const [modalEditarAberto, setModalEditarAberto] = useState(false);
 
@@ -88,7 +86,6 @@ export default function FuncionariosPage() {
         <main className="area-principal">
           <CabecalhoSecao 
             abrirModalCadastrar={() => setModalCadastrarAberto(true)}
-            abrirModalMedico={() => setModalMedicoAberto(true)}
           />
           <FiltroFuncionarios busca={busca} setBusca={setBusca} filtro={filtro} setFiltro={setFiltro} />
 
@@ -133,12 +130,7 @@ export default function FuncionariosPage() {
         />
       )}
 
-      {modalMedicoAberto && (
-        <CadastrarMedicoModal
-          onClose={() => setModalMedicoAberto(false)}
-          onCadastrado={carregarFuncionarios}
-        />
-      )}
+
     </div>
   );
 }

@@ -1,40 +1,3 @@
--- ============================================================
--- SCRIPT SQL - SISTEMA DE GESTÃO SUS
--- ============================================================
--- Este script cria o banco de dados e popula com dados de teste
--- 
--- ========== CREDENCIAIS DE LOGIN PARA TESTE ==========
--- 
--- ADMINISTRADOR:
---   Email: admin@saude.com
---   Senha: admin123hash
---
--- MÉDICOS (todos com senha: senha123hash):
---   Email: joao.silva@saude.com      | Especialidade: Clínica Geral
---   Email: maria.santos@saude.com    | Especialidade: Cardiologia
---   Email: pedro.oliveira@saude.com  | Especialidade: Ortopedia
---   Email: ana.costa@saude.com       | Especialidade: Pediatria
---   Email: carlos.mendes@saude.com   | Especialidade: Neurologia
---   Email: juliana.lima@saude.com    | Especialidade: Dermatologia
---   Email: roberto.alves@saude.com   | Especialidade: Psiquiatria
---   Email: fernanda.rocha@saude.com  | Especialidade: Ginecologia
---
--- PACIENTES (todos com senha: paciente123hash):
---   Email: jose.santos@email.com
---   Email: maria.oliveira@email.com
---   Email: antonio.souza@email.com
---   Email: francisca.lima@email.com
---   Email: paulo.alves@email.com
---
--- ========== DADOS DE TESTE ==========
--- - Consultas futuras: criadas usando DATE_ADD(NOW(), INTERVAL X DAY)
--- - Consultas passadas: criadas usando DATE_SUB(NOW(), INTERVAL X DAY)
--- - Prescrições ativas: têm fim >= CURDATE() ou fim IS NULL
--- - Cada médico tem um id_funcionario único (1-8)
--- - Médicos têm consultas agendadas e concluídas para testar
--- - Pacientes têm consultas futuras e histórico para testar
--- ============================================================
-
 drop database if exists saudedb;
 
 create database saudedb;
@@ -62,20 +25,19 @@ create table especialidades (
     cor varchar(10)
 );
 
-create table medicos (
-    id int primary key auto_increment,
-    id_funcionario int not null,
-    nome varchar(100) not null,
-    email varchar(100) not null unique,
-    telefone varchar(20),
-    salario decimal(10,2),
-    crm varchar(50) not null unique,
-    id_especialidade int,
-    foreign key (id_funcionario) references funcionarios(id)
-        on delete cascade on update cascade,
-    foreign key (id_especialidade) references especialidades(id)
-        on delete set null on update cascade
+CREATE TABLE medicos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_funcionario INT NOT NULL UNIQUE,
+    crm VARCHAR(50) NOT NULL UNIQUE,
+    id_especialidade INT,
+    FOREIGN KEY (id_funcionario) REFERENCES funcionarios(id)
+        ON DELETE CASCADE 
+        ON UPDATE CASCADE,
+    FOREIGN KEY (id_especialidade) REFERENCES especialidades(id)
+        ON DELETE SET NULL 
+        ON UPDATE CASCADE
 );
+
 
 create table pacientes (
     id int auto_increment primary key,
@@ -246,8 +208,6 @@ INSERT INTO especialidades (nome, valor, cor) VALUES
 ('Reumatologia', 770, '#6C5CE7'),
 ('Oncologia', 950, '#E17055');
 
--- Médicos: cada médico precisa ter um id_funcionario único
--- Usando os funcionários 1-8 que são médicos
 INSERT INTO medicos (id_funcionario, nome, email, telefone, salario, crm, id_especialidade) VALUES
 (1, 'Dr. João Silva', 'joao.silva@saude.com', '(11) 98765-4321', 15000.00, 'CRM/SP 123456', 8),
 (2, 'Dra. Maria Santos', 'maria.santos@saude.com', '(11) 98765-4322', 18000.00, 'CRM/SP 234567', 1),
@@ -258,7 +218,6 @@ INSERT INTO medicos (id_funcionario, nome, email, telefone, salario, crm, id_esp
 (7, 'Dr. Roberto Alves', 'roberto.alves@saude.com', '(11) 98765-4327', 16500.00, 'CRM/SP 789012', 6),
 (8, 'Dra. Fernanda Rocha', 'fernanda.rocha@saude.com', '(11) 98765-4328', 17500.00, 'CRM/SP 890123', 7);
 
--- Pacientes: garantindo que os emails correspondam aos da tabela usuario
 INSERT INTO pacientes (nome, cpf, cartao_sus, data_nascimento, telefone, email, endereco, tipo_sanguineo, alergias, contato_emergencia, status) VALUES
 ('José Santos Silva', '111.222.333-44', '123456789012345', '1965-03-15', '(11) 91234-5678', 'jose.santos@email.com', 'Rua das Flores, 123 - São Paulo/SP', 'O+', 'Nenhuma', '(11) 91234-5679', 'ativo'),
 ('Maria Aparecida Oliveira', '222.333.444-55', '234567890123456', '1972-08-22', '(11) 92345-6789', 'maria.oliveira@email.com', 'Av. Paulista, 456 - São Paulo/SP', 'A+', 'Penicilina', '(11) 92345-6790', 'ativo'),
@@ -293,11 +252,7 @@ INSERT INTO unidades_saude (nome, endereco) VALUES
 ('UBS Lapa', 'Rua Guaicurus, 250 - São Paulo/SP'),
 ('UBS Santo Amaro', 'Av. Santo Amaro, 900 - São Paulo/SP');
 
--- Consultas: misturando futuras (Agendadas/Confirmadas) e passadas (Concluídas)
--- Usando datas futuras para próximas consultas e passadas para histórico
--- Cada médico (funcionario_id 1-8) terá consultas com diferentes pacientes
 INSERT INTO consultas (paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, status) VALUES
--- Consultas FUTURAS (Agendadas/Confirmadas) - para testar "próximas consultas"
 (2, 1, DATE_ADD(NOW(), INTERVAL 3 DAY), 'Consulta Geral', 'UBS Central', 'Agendada'),
 (3, 2, DATE_ADD(NOW(), INTERVAL 5 DAY), 'Consulta Especializada', 'UBS Vila Mariana', 'Confirmada'),
 (4, 3, DATE_ADD(NOW(), INTERVAL 7 DAY), 'Consulta Especializada', 'UBS Mooca', 'Agendada'),
@@ -313,7 +268,6 @@ INSERT INTO consultas (paciente_id, funcionario_id, data_hora, tipo_consulta, un
 (14, 8, DATE_ADD(NOW(), INTERVAL 6 DAY), 'Consulta Especializada', 'UBS Santana', 'Agendada'),
 (15, 1, DATE_ADD(NOW(), INTERVAL 8 DAY), 'Consulta Geral', 'UBS Central', 'Agendada'),
 (16, 2, DATE_ADD(NOW(), INTERVAL 9 DAY), 'Retorno', 'UBS Vila Mariana', 'Agendada'),
--- Consultas PASSADAS (Concluídas) - para testar histórico
 (2, 1, DATE_SUB(NOW(), INTERVAL 30 DAY), 'Consulta Geral', 'UBS Central', 'Concluída'),
 (3, 2, DATE_SUB(NOW(), INTERVAL 25 DAY), 'Consulta Especializada', 'UBS Vila Mariana', 'Concluída'),
 (4, 3, DATE_SUB(NOW(), INTERVAL 20 DAY), 'Consulta Especializada', 'UBS Mooca', 'Concluída'),
@@ -334,10 +288,8 @@ INSERT INTO consultas (paciente_id, funcionario_id, data_hora, tipo_consulta, un
 (19, 5, DATE_SUB(NOW(), INTERVAL 45 DAY), 'Consulta Especializada', 'UBS Ipiranga', 'Concluída'),
 (20, 6, DATE_SUB(NOW(), INTERVAL 50 DAY), 'Consulta Especializada', 'UBS Butantã', 'Concluída');
 
--- Prescrições: algumas ativas (fim >= CURDATE() ou NULL) e algumas finalizadas
--- Prescrições ativas aparecerão na contagem de "prescricoesAtivas"
 INSERT INTO prescricoes (paciente_id, medicamento, dosagem, frequencia, inicio, fim, observacoes, medico_nome) VALUES
--- Prescrições ATIVAS (fim no futuro ou NULL)
+
 (2, 'Losartana', '50mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 60 DAY), 'Tomar em jejum', 'Dr. João Silva'),
 (3, 'Atenolol', '25mg', '2x ao dia', DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_ADD(NOW(), INTERVAL 65 DAY), 'Após as refeições', 'Dra. Maria Santos'),
 (5, 'Fluoxetina', '20mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_ADD(NOW(), INTERVAL 150 DAY), 'Tomar pela manhã', 'Dr. Carlos Mendes'),
@@ -351,7 +303,7 @@ INSERT INTO prescricoes (paciente_id, medicamento, dosagem, frequencia, inicio, 
 (18, 'Vitamina D', '1000UI', '1x ao dia', DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_ADD(NOW(), INTERVAL 110 DAY), 'Com refeição', 'Dra. Fernanda Rocha'),
 (19, 'Captopril', '25mg', '2x ao dia', DATE_SUB(NOW(), INTERVAL 7 DAY), DATE_ADD(NOW(), INTERVAL 175 DAY), 'Em jejum', 'Dra. Maria Santos'),
 (20, 'Atorvastatina', '20mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_ADD(NOW(), INTERVAL 180 DAY), 'À noite', 'Dr. João Silva'),
--- Prescrições FINALIZADAS (fim no passado) - para histórico
+
 (4, 'Paracetamol', '500mg', '4x ao dia', DATE_SUB(NOW(), INTERVAL 40 DAY), DATE_SUB(NOW(), INTERVAL 35 DAY), 'Em caso de febre', 'Dra. Ana Costa'),
 (8, 'Clonazepam', '2mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 50 DAY), DATE_SUB(NOW(), INTERVAL 20 DAY), 'Antes de dormir', 'Dr. Roberto Alves'),
 (12, 'Amoxicilina', '500mg', '3x ao dia', DATE_SUB(NOW(), INTERVAL 45 DAY), DATE_SUB(NOW(), INTERVAL 35 DAY), 'Completar tratamento', 'Dr. Pedro Oliveira'),

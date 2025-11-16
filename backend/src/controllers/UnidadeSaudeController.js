@@ -9,9 +9,13 @@ const autenticador = getAuthentication();
 endpoints.post('/ubs', autenticador, async (req, resp) => {
   try {
     let { nome, endereco } = req.body;
+
     let id = await ubsService.inserirUbs(nome, endereco);
+
     resp.status(201).send({ mensagem: 'Unidade criada com sucesso!', id });
-  } catch (err) {
+  } 
+  
+  catch (err) {
     resp.status(400).send({ erro: err.message });
   }
 });
@@ -21,7 +25,9 @@ endpoints.get('/ubs', autenticador, async (req, resp) => {
   try {
     let lista = await ubsService.listarUbs();
     resp.send(lista);
-  } catch (err) {
+  } 
+  
+  catch (err) {
     resp.status(400).send({ erro: err.message });
   }
 });
@@ -34,7 +40,9 @@ endpoints.get('/ubs/nome', autenticador, async (req, resp) => {
 
     let lista = await ubsService.buscarUbsPorNome(nome);
     resp.send(lista);
-  } catch (err) {
+  } 
+  
+  catch (err) {
     resp.status(404).send({ erro: err.message });
   }
 });
@@ -43,9 +51,13 @@ endpoints.get('/ubs/nome', autenticador, async (req, resp) => {
 endpoints.put('/ubs/:id', autenticador, async (req, resp) => {
   try {
     let { nome, endereco } = req.body;
+
     await ubsService.atualizarUbs(req.params.id, nome, endereco);
+
     resp.send({ mensagem: 'Unidade atualizada com sucesso.' });
-  } catch (err) {
+  } 
+  
+  catch (err) {
     resp.status(400).send({ erro: err.message });
   }
 });
@@ -54,8 +66,11 @@ endpoints.put('/ubs/:id', autenticador, async (req, resp) => {
 endpoints.delete('/ubs/:id', autenticador, async (req, resp) => {
   try {
     await ubsService.deletarUbs(req.params.id);
+
     resp.send({ mensagem: 'Unidade removida com sucesso.' });
-  } catch (err) {
+  } 
+  
+  catch (err) {
     resp.status(400).send({ erro: err.message });
   }
 });

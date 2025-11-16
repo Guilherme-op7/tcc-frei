@@ -12,8 +12,8 @@ endpoints.get('/medicamentos', autenticador, async (req, res) => {
         res.status(200).json(resposta);
     } 
     
-    catch (error) {
-        res.status(500).json({ erro: error.message });
+    catch (err) {
+        res.status(500).json({ erro: err.message });
     }
 });
 
@@ -26,8 +26,8 @@ endpoints.get('/medicamentos/filtrar', autenticador, async (req, res) => {
         res.status(200).json(resposta);
     } 
     
-    catch (error) {
-        res.status(500).json({ erro: error.message });
+    catch (err) {
+        res.status(500).json({ erro: err.message });
     }
 });
 
@@ -40,8 +40,8 @@ endpoints.post('/medicamentos', autenticador, async (req, res) => {
         res.status(201).json({ resposta });
     } 
     
-    catch (error) {
-        res.status(500).json({ erro: error.message });
+    catch (err) {
+        res.status(500).json({ erro: err.message });
     }
 });
 
@@ -57,9 +57,9 @@ endpoints.put('/medicamentos/:id', autenticador, async (req, res) => {
     res.status(200).json(resposta);
   } 
   
-  catch (error) {
-    console.error("Erro ao atualizar medicamento:", error);
-    res.status(500).json({ erro: error.message });
+  catch (err) {
+    console.err("Erro ao atualizar medicamento:", err);
+    res.status(500).json({ erro: err.message });
   }
 });
 
@@ -72,8 +72,8 @@ endpoints.delete('/medicamentos/:id', autenticador, async (req, res) => {
     } 
     
     
-    catch (error) {
-        res.status(500).json({ erro: error.message });
+    catch (err) {
+        res.status(500).json({ erro: err.message });
     }
 });
 

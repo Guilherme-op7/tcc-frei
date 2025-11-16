@@ -2,7 +2,7 @@ import { connection } from '../config/connection.js';
 
 
 export async function inserirPaciente(paciente) {
-  const comando = `
+  let comando = `
     INSERT INTO pacientes (
       nome, data_nascimento, cpf, email, endereco,
       telefone, cartao_sus, tipo_sanguineo, alergias,
@@ -11,7 +11,7 @@ export async function inserirPaciente(paciente) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
   `;
 
-  const [info] = await connection.query(comando, [
+  let [info] = await connection.query(comando, [
     paciente.nome,
     paciente.data_nascimento,
     paciente.cpf,
@@ -29,52 +29,52 @@ export async function inserirPaciente(paciente) {
 
 
 export async function listarPacientes() {
-  const comando = `SELECT * FROM pacientes ORDER BY nome ASC;`;
-  const [linhas] = await connection.query(comando);
+  let comando = `SELECT * FROM pacientes ORDER BY nome ASC;`;
+  let [linhas] = await connection.query(comando);
   return linhas;
 }
 
 
 export async function buscarPacientePorNome(nome) {
-  const comando = `
+  let comando = `
     SELECT * FROM pacientes
     WHERE nome LIKE ?;
   `;
-  const [linhas] = await connection.query(comando, [`%${nome}%`]);
+  let [linhas] = await connection.query(comando, [`%${nome}%`]);
   return linhas;
 }
 
 
 export async function buscarPacientePorCpf(cpf) {
-  const comando = `
+  let comando = `
     SELECT * FROM pacientes
     WHERE cpf = ?;
   `;
-  const [linhas] = await connection.query(comando, [cpf]);
+  let [linhas] = await connection.query(comando, [cpf]);
   return linhas[0];
 }
 
 
 export async function buscarPacientePorId(id) {
-  const comando = `
+  let comando = `
     SELECT * FROM pacientes
     WHERE id = ?;
   `;
-  const [linhas] = await connection.query(comando, [id]);
+  let [linhas] = await connection.query(comando, [id]);
   return linhas[0];
 }
 
 
 
 export async function atualizarPaciente(id, paciente) {
-  const comando = `
+  let comando = `
     UPDATE pacientes
     SET nome = ?, cpf = ?, cartao_sus = ?, email = ?, tipo_sanguineo = ?,
         status =?
     WHERE id = ?;
   `;
 
-  const [info] = await connection.query(comando, [
+  let [info] = await connection.query(comando, [
     paciente.nome,
     paciente.cpf,
     paciente.cartao_sus,
@@ -89,22 +89,22 @@ export async function atualizarPaciente(id, paciente) {
 
 
 export async function deletarPaciente(id) {
-  const comando = `DELETE FROM pacientes WHERE id = ?;`;
-  const [info] = await connection.query(comando, [id]);
+  let comando = `DELETE FROM pacientes WHERE id = ?;`;
+  let [info] = await connection.query(comando, [id]);
   return info.affectedRows;
 }
 
 export async function buscarPacientePorEmail(email) {
-  const comando = `
+  let comando = `
     SELECT * FROM pacientes
     WHERE email = ?;
   `;
-  const [linhas] = await connection.query(comando, [email]);
+  let [linhas] = await connection.query(comando, [email]);
   return linhas[0];
 }
 
 export async function contarConsultasAgendadas(pacienteId) {
-  const [resultado] = await connection.query(
+  let [resultado] = await connection.query(
     `SELECT COUNT(*) as total FROM consultas 
      WHERE paciente_id = ? AND status IN ('Agendada', 'Confirmada')`,
     [pacienteId]
@@ -113,7 +113,7 @@ export async function contarConsultasAgendadas(pacienteId) {
 }
 
 export async function contarConsultasRealizadas(pacienteId) {
-  const [resultado] = await connection.query(
+  let [resultado] = await connection.query(
     `SELECT COUNT(*) as total FROM consultas 
      WHERE paciente_id = ? AND status = 'Concluída'`,
     [pacienteId]
@@ -122,7 +122,7 @@ export async function contarConsultasRealizadas(pacienteId) {
 }
 
 export async function contarPrescricoesAtivas(pacienteId) {
-  const [resultado] = await connection.query(
+  let [resultado] = await connection.query(
     `SELECT COUNT(*) as total FROM prescricoes 
      WHERE paciente_id = ? AND (fim IS NULL OR fim >= CURDATE())`,
     [pacienteId]

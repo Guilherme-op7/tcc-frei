@@ -13,6 +13,7 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
     unidade: "",
     status: "Agendada",
   });
+
   const [pacientes, setPacientes] = useState([]);
   const [medicos, setMedicos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,9 +28,9 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
           api.get("/medicos"),
         ]);
 
-        setPacientes(resPacientes.data);
-        // backend pode retornar { resposta: [...] } ou array diretamente
-        setMedicos(resMedicos.data.resposta || resMedicos.data);
+        setPacientes(resPacientes.data ?? []);
+        setMedicos(resMedicos.data ?? []);
+
 
         if (consulta) {
           let dataHoraFormatada = "";
@@ -37,13 +38,13 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
             try {
               const dataHora = new Date(consulta.data_hora);
               if (!isNaN(dataHora.getTime())) {
-                // ISO local (YYYY-MM-DDTHH:MM)
                 dataHoraFormatada = dataHora.toISOString().slice(0, 16);
               }
             } catch (e) {
               console.error("Erro ao formatar data:", e);
             }
           }
+
           setForm({
             paciente_id: consulta.paciente_id ?? "",
             medico_id: consulta.medico_id ?? "",
@@ -55,27 +56,29 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
         }
       } catch (err) {
         console.error("Erro ao carregar dados:", err);
-        alert("Erro ao carregar dados. Tente novamente.");
+        toast.error("Erro ao carregar dados.");
       } finally {
         setLoading(false);
       }
     }
+
     carregarDados();
   }, [consulta]);
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
+
     try {
       let dataHora = form.data_hora;
       if (dataHora && !dataHora.includes("T")) {
         dataHora = dataHora.replace(" ", "T");
       }
-      
+
       const payload = {
         paciente_id: Number(form.paciente_id),
         medico_id: Number(form.medico_id),
@@ -84,11 +87,12 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
         unidade: form.unidade,
         status: form.status,
       };
+
       await onSalvar(payload);
       onClose();
     } catch (erro) {
       console.error("Erro ao salvar consulta:", erro);
-      toast.error("Erro ao salvar consulta. Veja o console.");
+      toast.error("Erro ao salvar consulta.");
     }
   }
 

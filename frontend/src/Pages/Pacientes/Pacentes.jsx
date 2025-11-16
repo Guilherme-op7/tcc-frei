@@ -1,16 +1,7 @@
 import { useState, useEffect } from "react";
-import {
-  Calendar,
-  FileText,
-  User,
-  LogOut,
-  X,
-  Plus,
-  Download,
-} from "lucide-react";
+import { Calendar, FileText, User, LogOut, X, Plus, Download } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../api";
-import ModalAgendamento from "./ModalAgendamento";
 
 import imgLogo from "../../assets/images/logo.png";
 import { useNavigate } from "react-router";
@@ -126,7 +117,6 @@ export default function PacientesPa() {
   return (
     <div className="min-h-screen bg-white">
       
-      {/* ===================== CABEÇALHO ===================== */}
       <header className="bg-gradient-to-r from-cyan-100/40 to-cyan-50/40 shadow-lg px-4 py-4 md:px-8">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -153,10 +143,8 @@ export default function PacientesPa() {
         </div>
       </header>
 
-      {/* ===================== CONTEÚDO ===================== */}
       <main className="max-w-7xl mx-auto px-4 py-8">
 
-        {/* ===================== DADOS PESSOAIS ===================== */}
         <section className="mb-10">
           <div className="bg-gradient-to-r from-cyan-100/30 to-white/30 rounded-xl shadow-lg p-8">
             <div className="flex items-center gap-3 mb-6">
@@ -182,7 +170,6 @@ export default function PacientesPa() {
           </div>
         </section>
 
-        {/* ===================== CARDS ===================== */}
         <section className="mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
@@ -201,22 +188,15 @@ export default function PacientesPa() {
           </div>
         </section>
 
-        {/* ===================== CONSULTAS ===================== */}
         <section className="mb-10">
           <div className="bg-white/40 backdrop-blur-lg rounded-xl shadow-lg p-8 border border-gray-300/25">
             
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-black font-semibold text-lg">Minhas Próximas Consultas</h2>
 
-              <button
-                onClick={() => setOpenModal(true)}
-                className="bg-[#75B7F5] hover:bg-[#5fa3e0] text-white px-4 py-2 rounded-md flex items-center gap-2"
-              >
-                <Plus className="w-4 h-4" /> Agendar Consulta
-              </button>
+
             </div>
 
-            {/* CARDS DAS CONSULTAS */}
             {proximasConsultas.length > 0 ? (
               proximasConsultas.map((consulta) => (
                 <div key={consulta.id} className="border border-gray-300/50 rounded-lg p-6 bg-white/50 mb-4">
@@ -241,7 +221,6 @@ export default function PacientesPa() {
           </div>
         </section>
 
-        {/* ===================== HISTÓRICO ===================== */}
         <section>
           <div className="bg-white/50 backdrop-blur-lg rounded-xl shadow-lg p-8 border">
 
@@ -265,7 +244,6 @@ export default function PacientesPa() {
               </div>
             </div>
 
-            {/* HISTÓRICO PRINCIPAL */}
             {historico.consultas.length > 0 ? (
               <>
                 {historico.consultas.slice(0, showFullHistory ? historico.consultas.length : 1).map((consulta, index) => {
@@ -293,24 +271,10 @@ export default function PacientesPa() {
         </section>
 
       </main>
-
-      {/* ===================== MODAL ===================== */}
-      {openModal && (
-        <ModalAgendamento 
-          pacienteId={paciente?.id}
-          onClose={() => setOpenModal(false)}
-          onAgendado={() => {
-            // Recarregar dados após agendamento
-            window.location.reload();
-          }}
-        />
-      )}
-
     </div>
   );
 }
 
-/* ===================== COMPONENTES AUXILIARES ===================== */
 
 function Item({ label, valor }) {
   return (

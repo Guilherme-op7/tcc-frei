@@ -7,7 +7,7 @@ const endpoints = Router();
 const autenticador = getAuthentication();
 
 
-endpoints.post('/pacientes', async (req, resp) => {
+endpoints.post('/pacientes', autenticador, async (req, resp) => {
   try {
     let id = await pacienteService.inserirPaciente(req.body);
 

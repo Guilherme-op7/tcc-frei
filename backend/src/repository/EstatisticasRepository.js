@@ -1,17 +1,17 @@
 import { connection } from "../config/connection.js";
 
 export async function contarPacientes() {
-  const [resultados] = await connection.query(`SELECT COUNT(*) as total FROM pacientes`);
+  let [resultados] = await connection.query(`SELECT COUNT(*) as total FROM pacientes`);
   return resultados[0].total || 0;
 }
 
 export async function contarFuncionariosAtivos() {
-  const [resultados] = await connection.query(`SELECT COUNT(*) as total FROM funcionarios WHERE funcionario_ativo = 1`);
+  let [resultados] = await connection.query(`SELECT COUNT(*) as total FROM funcionarios WHERE funcionario_ativo = 1`);
   return resultados[0].total || 0;
 }
 
 export async function contarConsultasHoje() {
-  const [resultados] = await connection.query(`
+  let [resultados] = await connection.query(`
     SELECT COUNT(*) as total 
     FROM consultas 
     WHERE DATE(data_hora) = CURDATE()
@@ -20,12 +20,12 @@ export async function contarConsultasHoje() {
 }
 
 export async function contarMedicamentos() {
-  const [resultados] = await connection.query(`SELECT COUNT(*) as total FROM Medicamentos`);
+  let [resultados] = await connection.query(`SELECT COUNT(*) as total FROM Medicamentos`);
   return resultados[0].total || 0;
 }
 
 export async function consultasPorMes(limiteMeses = 6) {
-  const [resultados] = await connection.query(`
+  let [resultados] = await connection.query(`
     SELECT 
       mes,
       consultas,
@@ -40,7 +40,7 @@ export async function consultasPorMes(limiteMeses = 6) {
 
 
 export async function consultasPorStatus() {
-  const [resultados] = await connection.query(`
+  let [resultados] = await connection.query(`
     SELECT status, COUNT(*) as total
     FROM consultas
     GROUP BY status
@@ -49,7 +49,7 @@ export async function consultasPorStatus() {
 }
 
 export async function pacientesPorIdade() {
-  const [resultados] = await connection.query(`
+  let [resultados] = await connection.query(`
     SELECT 
       faixa_etaria AS faixa,
       quantidade
@@ -61,7 +61,7 @@ export async function pacientesPorIdade() {
 
 
 export async function especialidadesPorFuncionarios() {
-  const [resultados] = await connection.query(`
+  let [resultados] = await connection.query(`
     SELECT 
       COALESCE(departamento, 'Outros') as especialidade,
       COUNT(*) as total
@@ -74,7 +74,7 @@ export async function especialidadesPorFuncionarios() {
 }
 
 export async function medicamentosPorConsumo() {
-  const [resultados] = await connection.query(`
+  let [resultados] = await connection.query(`
     SELECT 
       medicamento AS nome,
       estoque,
@@ -88,7 +88,7 @@ export async function medicamentosPorConsumo() {
 
 
 export async function funcionariosPorTipo() {
-  const [resultados] = await connection.query(`
+  let [resultados] = await connection.query(`
     SELECT 
       cargo,
       COUNT(*) as total

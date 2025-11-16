@@ -54,7 +54,7 @@ export async function InserirMedicamentos(NovosDados) {
 }
 
 export async function AtualizarMedicamentos(NovosDados, id) {
-    const [resultados] = await connection.query(
+    let [resultados] = await connection.query(
         `UPDATE medicamentos
          SET nome = ?, 
              dosagem_forma = ?, 

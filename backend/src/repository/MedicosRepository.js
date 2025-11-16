@@ -1,99 +1,122 @@
 import { connection } from "../config/connection.js";
 
-export async function CadastrarMedico(NovosDados) {
-    const [resultados] = await connection.query(
-        `INSERT INTO medicos (id_funcionario, nome, email, telefone, salario, crm, id_especialidade)
-         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+export async function CadastrarMedico(dados) {
+    const [resultado] = await connection.query(
+        `INSERT INTO medicos (
+            id_funcionario, 
+            crm, 
+            id_especialidade
+        ) VALUES (?, ?, ?)`,
         [
-            NovosDados.id_funcionario,
-            NovosDados.nome,
-            NovosDados.email,
-            NovosDados.telefone,
-            NovosDados.salario,
-            NovosDados.crm,
-            NovosDados.id_especialidade
+            dados.id_funcionario,
+            dados.crm,
+            dados.id_especialidade || null
         ]
     );
-    return resultados;
+
+    return resultado;
 }
 
 export async function ListarMedicos() {
     const [resultados] = await connection.query(
-        `SELECT m.*, e.nome as nome_especialidade 
-         FROM medicos m 
-         LEFT JOIN especialidades e ON m.id_especialidade = e.id 
-         ORDER BY m.nome ASC`
+        `SELECT 
+            m.id,
+            m.crm,
+            m.id_especialidade,
+            e.nome AS nome_especialidade,
+            
+            f.id AS funcionario_id,
+            f.nome AS funcionario_nome,
+            f.email AS funcionario_email,
+            f.telefone AS funcionario_telefone,
+            f.salario AS funcionario_salario
+
+         FROM medicos m
+         INNER JOIN funcionarios f ON f.id = m.id_funcionario
+         LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         ORDER BY f.nome ASC`
     );
+
     return resultados;
 }
 
 export async function BuscarMedicoPorId(id) {
     const [resultados] = await connection.query(
-        `SELECT m.*, e.nome as nome_especialidade 
-         FROM medicos m 
-         LEFT JOIN especialidades e ON m.id_especialidade = e.id 
-         WHERE m.id = ?`, [id]
+        `SELECT 
+            m.id,
+            m.crm,
+            m.id_especialidade,
+            e.nome AS nome_especialidade,
+            
+            f.id AS funcionario_id,
+            f.nome AS funcionario_nome,
+            f.email AS funcionario_email,
+            f.telefone AS funcionario_telefone,
+            f.salario AS funcionario_salario
+
+         FROM medicos m
+         INNER JOIN funcionarios f ON f.id = m.id_funcionario
+         LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         WHERE m.id = ?`,
+        [id]
     );
+
     return resultados[0];
-}
-
-export async function BuscarMedicoPorNome(nome) {
-    const [resultados] = await connection.query(
-        `SELECT m.*, e.nome as nome_especialidade 
-         FROM medicos m 
-         LEFT JOIN especialidades e ON m.id_especialidade = e.id 
-         WHERE m.nome LIKE ?`, [`%${nome}%`]
-    );
-    return resultados;
-}
-
-export async function AtualizarMedico(NovosDados, id) {
-    const [resultados] = await connection.query(
-        `UPDATE medicos
-         SET id_funcionario = ?,
-             nome = ?,
-             email = ?,
-             telefone = ?,
-             salario = ?,
-             crm = ?,
-             id_especialidade = ?
-         WHERE id = ?`,
-        [
-            NovosDados.id_funcionario,
-            NovosDados.nome,
-            NovosDados.email,
-            NovosDados.telefone,
-            NovosDados.salario,
-            NovosDados.crm,
-            NovosDados.id_especialidade,
-            id
-        ]
-    );
-    return resultados.affectedRows;
-}
-
-export async function DeletarMedico(id) {
-    const [resultados] = await connection.query(
-        `DELETE FROM medicos WHERE id = ?`, [id]
-    );
-    return resultados;
 }
 
 export async function BuscarMedicoPorEmail(email) {
     const [resultados] = await connection.query(
-        `SELECT m.*, e.nome as nome_especialidade 
-         FROM medicos m 
-         LEFT JOIN especialidades e ON m.id_especialidade = e.id 
-         WHERE m.email = ?`, [email]
+        `SELECT 
+            m.id,
+            m.crm,
+            m.id_especialidade,
+            e.nome AS nome_especialidade,
+
+            f.nome AS funcionario_nome,
+            f.email AS funcionario_email
+
+         FROM medicos m
+         INNER JOIN funcionarios f ON f.id = m.id_funcionario
+         LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         WHERE f.email = ?`,
+        [email]
     );
+
     return resultados[0];
+}
+
+export async function AtualizarMedico(dados, id) {
+    const [resultado] = await connection.query(
+        `UPDATE medicos SET
+            id_funcionario = ?,
+            crm = ?,
+            id_especialidade = ?
+         WHERE id = ?`,
+        [
+            dados.id_funcionario,
+            dados.crm,
+            dados.id_especialidade || null,
+            id
+        ]
+    );
+
+    return resultado.affectedRows;
+}
+
+export async function DeletarMedico(id) {
+    const [resultado] = await connection.query(
+        `DELETE FROM medicos WHERE id = ?`,
+        [id]
+    );
+
+    return resultado;
 }
 
 export async function ContarPacientesDoMedico(medicoId) {
     const [resultado] = await connection.query(
-        `SELECT COUNT(DISTINCT consultas.paciente_id) as total 
+        `SELECT COUNT(DISTINCT consultas.paciente_id) AS total
          FROM consultas
-         JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
+         INNER JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
          WHERE medicos.id = ?`,
         [medicoId]
     );
@@ -102,9 +125,11 @@ export async function ContarPacientesDoMedico(medicoId) {
 
 export async function ContarConsultasAgendadasMedico(medicoId) {
     const [resultado] = await connection.query(
-        `SELECT COUNT(*) as total FROM consultas
-         JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
-         WHERE medicos.id = ? AND consultas.status IN ('Agendada', 'Confirmada')`,
+        `SELECT COUNT(*) AS total
+         FROM consultas
+         INNER JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
+         WHERE medicos.id = ?
+         AND consultas.status IN ('Agendada', 'Confirmada')`,
         [medicoId]
     );
     return resultado[0].total;
@@ -112,9 +137,11 @@ export async function ContarConsultasAgendadasMedico(medicoId) {
 
 export async function ContarAtendimentosMedico(medicoId) {
     const [resultado] = await connection.query(
-        `SELECT COUNT(*) as total FROM consultas
-         JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
-         WHERE medicos.id = ? AND consultas.status = 'Concluída'`,
+        `SELECT COUNT(*) AS total
+         FROM consultas
+         INNER JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
+         WHERE medicos.id = ?
+         AND consultas.status = 'Concluída'`,
         [medicoId]
     );
     return resultado[0].total;
@@ -122,8 +149,9 @@ export async function ContarAtendimentosMedico(medicoId) {
 
 export async function ContarTotalConsultasMedico(medicoId) {
     const [resultado] = await connection.query(
-        `SELECT COUNT(*) as total FROM consultas
-         JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
+        `SELECT COUNT(*) AS total
+         FROM consultas
+         INNER JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
          WHERE medicos.id = ?`,
         [medicoId]
     );
@@ -133,21 +161,52 @@ export async function ContarTotalConsultasMedico(medicoId) {
 export async function ListarPacientesDoMedico(medicoId) {
     const [resultados] = await connection.query(
         `SELECT DISTINCT 
-            p.id,
-            p.nome,
-            p.telefone,
-            p.tipo_sanguineo,
-            p.alergias,
-            COUNT(DISTINCT c.id) as total_consultas,
-            COUNT(DISTINCT CASE WHEN c.status IN ('Agendada', 'Confirmada') THEN c.id END) as consultas_agendadas,
-            MAX(CASE WHEN c.status = 'Concluída' THEN c.data_hora END) as ultima_consulta
-         FROM pacientes p
-         INNER JOIN consultas c ON p.id = c.paciente_id
-         INNER JOIN medicos m ON m.id_funcionario = c.funcionario_id
-         WHERE m.id = ?
-         GROUP BY p.id, p.nome, p.telefone, p.tipo_sanguineo, p.alergias
-         ORDER BY p.nome ASC`,
+            pacientes.id,
+            pacientes.nome,
+            pacientes.telefone,
+            pacientes.tipo_sanguineo,
+            pacientes.alergias,
+            COUNT(DISTINCT consultas.id) AS total_consultas,
+            COUNT(DISTINCT CASE 
+                WHEN consultas.status IN ('Agendada', 'Confirmada') THEN consultas.id 
+            END) AS consultas_agendadas,
+            MAX(CASE 
+                WHEN consultas.status = 'Concluída' THEN consultas.data_hora 
+            END) AS ultima_consulta
+         FROM pacientes
+         INNER JOIN consultas ON pacientes.id = consultas.paciente_id
+         INNER JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
+         WHERE medicos.id = ?
+         GROUP BY pacientes.id
+         ORDER BY pacientes.nome ASC`,
         [medicoId]
     );
+
     return resultados;
 }
+
+export async function BuscarMedicoPorNome(nome) {
+    const [resultados] = await connection.query(
+        `SELECT 
+            m.id,
+            m.crm,
+            m.id_especialidade,
+            e.nome AS nome_especialidade,
+            
+            f.id AS funcionario_id,
+            f.nome AS funcionario_nome,
+            f.email AS funcionario_email,
+            f.telefone AS funcionario_telefone,
+            f.salario AS funcionario_salario
+
+         FROM medicos m
+         INNER JOIN funcionarios f ON f.id = m.id_funcionario
+         LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         WHERE f.nome LIKE ?
+         ORDER BY f.nome ASC`,
+        [`%${nome}%`]
+    );
+
+    return resultados;
+}
+

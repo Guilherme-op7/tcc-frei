@@ -25,24 +25,23 @@ export default function Dashboard() {
         setEstatisticas(resposta.data);
 
         let respMes = await api.get("/estatisticas/consultas/por-mes");
-        let dados = (respMes.data).map((item) => ({
-          label: item.mes, 
+        let dados = respMes.data.map((item) => ({
+          label: item.mes,
           valor: item.total,
         }));
-
         setDadosGraficos(dados);
 
         let respIdade = await api.get("/estatisticas/pacientes/por-idade");
         setPacientesPorIdade(respIdade.data);
-      }
 
-      catch (error) {
+      } catch (error) {
         console.error("Erro ao carregar estatísticas:", error);
       }
     }
 
     carregar();
   }, []);
+
 
   return (
     <div className="painel-geral">

@@ -15,6 +15,14 @@ export async function CadastrarFuncionarios(NovosDados) {
     return resultados;
 }
 
+export async function BuscarFuncionarioPorId(id) {
+    const [rows] = await connection.query(
+        `SELECT * FROM funcionarios WHERE id = ?`,
+        [id]
+    );
+    return rows[0];
+}
+
 export async function ListarFuncionarios() {
     let [resultados] =
         await connection.query(

@@ -28,6 +28,7 @@ export default function PaginaConsultas() {
       setConsultas(data);
       setErro(null);
     } 
+    
     catch (err) {
       console.error(err);
       setErro("Não foi possível carregar as consultas.");

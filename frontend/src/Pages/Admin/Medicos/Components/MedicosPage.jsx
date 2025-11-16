@@ -26,18 +26,26 @@ export default function MedicosPage() {
     setLoading(true);
     try {
       const res = await api.get("/medicos");
-      const medicosData = Array.isArray(res.data) ? res.data : (res.data.resposta || []);
-      setMedicos(medicosData.map(m => ({
-        id: m.id,
-        id_funcionario: m.id_funcionario,
-        nome: m.nome || "",
-        email: m.email || "",
-        telefone: m.telefone || "",
-        crm: m.crm || "",
-        id_especialidade: m.id_especialidade,
-        especialidade: m.nome_especialidade || "-",
-        salario: m.salario ? `R$ ${parseFloat(m.salario).toFixed(2)}` : "R$ 0,00",
-      })));
+
+      const medicosData = Array.isArray(res.data)
+        ? res.data
+        : res.data.resposta || [];
+
+      setMedicos(
+        medicosData.map((m) => ({
+          id: m.id,
+          id_funcionario: m.funcionario_id,
+          nome: m.funcionario_nome || "",
+          email: m.funcionario_email || "",
+          telefone: m.funcionario_telefone || "",
+          salario: m.funcionario_salario
+            ? `R$ ${parseFloat(m.funcionario_salario).toFixed(2)}`
+            : "R$ 0,00",
+          crm: m.crm,
+          id_especialidade: m.id_especialidade,
+          especialidade: m.nome_especialidade || "-",
+        }))
+      );
     } catch (erro) {
       console.error("Erro ao carregar médicos:", erro);
       toast.error("Erro ao carregar médicos");
@@ -52,49 +60,53 @@ export default function MedicosPage() {
 
   async function deletarMedico(id) {
     if (!window.confirm("Tem certeza que deseja deletar este médico?")) return;
+
     try {
       await api.delete(`/medicos/${id}`);
       toast.success("Médico deletado com sucesso!");
       carregarMedicos();
     } catch (erro) {
       console.error("Erro ao deletar médico:", erro);
-      const mensagem = erro.response?.data?.erro || erro.message || "Erro ao deletar médico.";
+      const mensagem =
+        erro.response?.data?.erro || erro.message || "Erro ao deletar médico.";
       toast.error(mensagem);
     }
   }
 
-  const medicosFiltrados = medicos.filter(m =>
-    (m.nome.toLowerCase().includes(busca.toLowerCase()) ||
-     m.email.toLowerCase().includes(busca.toLowerCase()) ||
-     m.crm.toLowerCase().includes(busca.toLowerCase()))
+  const medicosFiltrados = medicos.filter((m) =>
+    (m.nome || "").toLowerCase().includes(busca.toLowerCase()) ||
+    (m.email || "").toLowerCase().includes(busca.toLowerCase()) ||
+    (m.crm || "").toLowerCase().includes(busca.toLowerCase())
   );
 
   return (
     <div className="pagina-medicos">
       <Sidebar definirSidebarAberta={setSidebarAberta} />
-      <div className={`conteudo-principal ${sidebarAberta ? "menu-aberto" : "menu-colapsado"}`}>
+      <div
+        className={`conteudo-principal ${
+          sidebarAberta ? "menu-aberto" : "menu-colapsado"
+        }`}
+      >
         <DashboardHeader />
         <main className="area-principal">
-          <CabecalhoMedicos 
-            abrirModalCadastrar={() => setModalCadastrarAberto(true)}
-          />
+          <CabecalhoMedicos abrirModalCadastrar={() => setModalCadastrarAberto(true)} />
+
           <FiltroMedicos busca={busca} setBusca={setBusca} />
 
-          {loading
-            ? <div className="caixa-carregando">Carregando médicos...</div>
-            : 
-            (medicosFiltrados.length
-                ? <TabelaMedicos 
-                    medicos={medicosFiltrados} 
-                    deletarMedico={deletarMedico}
-                    aoEditar={(medico) => {
-                      setMedicoSelecionado(medico);
-                      setModalEditarAberto(true);
-                    }}
-                  />
-                : <EstadoVazio busca={busca} />
-              )
-          }
+          {loading ? (
+            <div className="caixa-carregando">Carregando médicos...</div>
+          ) : medicosFiltrados.length ? (
+            <TabelaMedicos
+              medicos={medicosFiltrados}
+              deletarMedico={deletarMedico}
+              aoEditar={(medico) => {
+                setMedicoSelecionado(medico);
+                setModalEditarAberto(true);
+              }}
+            />
+          ) : (
+            <EstadoVazio busca={busca} />
+          )}
         </main>
       </div>
 
@@ -122,4 +134,3 @@ export default function MedicosPage() {
     </div>
   );
 }
-

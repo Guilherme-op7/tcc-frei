@@ -57,30 +57,62 @@ export default function RelatoriosPage() {
     carregarDados();
   }, []);
 
-  function exportarPDF() {
-    const pdf = new jsPDF();
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(18);
-    pdf.text("Relatório SUS Digital", 14, 20);
+function exportarPDF() {
+  const pdf = new jsPDF();
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(18);
+  pdf.text("Relatório Completo - SUS Digital", 14, 20);
 
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(12);
-    pdf.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, 14, 30);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(12);
+  pdf.text(`Gerado em: ${new Date().toLocaleString("pt-BR")}`, 14, 30);
 
-    autoTable(pdf, {
-      startY: 45,
-      head: [["Categoria", "Itens"]],
-      body: [
-        ["Consultas por Mês", consultasPorMes.length],
-        ["Especialidades", especialidadesData.length],
-        ["Medicamentos", medicamentosConsumo.length],
-        ["Faixas Etárias", pacientesPorIdade.length]
-      ],
-      theme: "grid"
-    });
+  autoTable(pdf, {
+    startY: 40,
+    head: [["Mês", "Consultas", "Pacientes"]],
+    body: consultasPorMes.map(item => [
+      item.mes,
+      item.consultas,
+      item.pacientes,
+    ]),
+    theme: "grid",
+    margin: { top: 10 }
+  });
 
-    pdf.save("relatorio-sus-digital.pdf");
-  }
+  autoTable(pdf, {
+    startY: pdf.lastAutoTable.finalY + 10,
+    head: [["Especialidade", "Total"]],
+    body: especialidadesData.map(item => [
+      item.name,
+      item.value
+    ]),
+    theme: "grid",
+  });
+
+  autoTable(pdf, {
+    startY: pdf.lastAutoTable.finalY + 10,
+    head: [["Medicamento", "Consumo", "Estoque"]],
+    body: medicamentosConsumo.map(item => [
+      item.medicamento,
+      item.consumo,
+      item.estoque
+    ]),
+    theme: "grid",
+  });
+
+  // 🔹 Tabela – Pacientes por Faixa Etária
+  autoTable(pdf, {
+    startY: pdf.lastAutoTable.finalY + 10,
+    head: [["Faixa etária", "Quantidade"]],
+    body: pacientesPorIdade.map(item => [
+      item.faixa,
+      item.quantidade
+    ]),
+    theme: "grid",
+  });
+
+  pdf.save("relatorio-sus-digital-completo.pdf");
+}
 
   return (
     <div className={`pagina-relatorios ${sidebarAberta ? "sidebar-aberta" : "sidebar-colapsada"}`}>

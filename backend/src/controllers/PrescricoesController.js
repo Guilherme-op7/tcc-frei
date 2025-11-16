@@ -35,7 +35,3 @@ endpoints.post('/pacientes/:id/prescricoes', autenticador, async (req, res) => {
 });
 
 export default endpoints;
-
-
-
-

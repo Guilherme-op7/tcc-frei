@@ -13,7 +13,7 @@ export default function CadastroPage() {
     email: "",
     senha: "",
     confirmarSenha: "",
-    tipo_usuario: "paciente", // Fixo como paciente
+    tipo_usuario: "paciente", 
   });
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
