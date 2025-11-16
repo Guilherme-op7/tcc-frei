@@ -9,6 +9,7 @@ export async function ListarConsultas() {
       c.id,
       c.paciente_id,
       c.funcionario_id,
+      m.id AS medico_id,
       c.data_hora,
       c.tipo_consulta,
       c.unidade,
@@ -18,6 +19,7 @@ export async function ListarConsultas() {
     FROM consultas c
     INNER JOIN pacientes p ON c.paciente_id = p.id
     INNER JOIN funcionarios f ON c.funcionario_id = f.id
+    LEFT JOIN medicos m ON m.id_funcionario = f.id
     ORDER BY c.data_hora DESC
   `);
 
@@ -33,6 +35,7 @@ export async function BuscarConsultaPorPaciente(pacienteId) {
       c.id,
       c.paciente_id,
       c.funcionario_id,
+      m.id AS medico_id,
       c.data_hora,
       c.tipo_consulta,
       c.unidade,
@@ -40,6 +43,7 @@ export async function BuscarConsultaPorPaciente(pacienteId) {
       f.nome AS nome_medico
     FROM consultas c
     INNER JOIN funcionarios f ON c.funcionario_id = f.id
+    LEFT JOIN medicos m ON m.id_funcionario = f.id
     WHERE c.paciente_id = ?
     ORDER BY c.data_hora DESC
   `, [pacienteId]);
@@ -174,6 +178,7 @@ export async function BuscarConsultaPorUnidade(unidade) {
       c.id,
       c.paciente_id,
       c.funcionario_id,
+      m.id AS medico_id,
       c.data_hora,
       c.tipo_consulta,
       c.unidade,
@@ -183,6 +188,7 @@ export async function BuscarConsultaPorUnidade(unidade) {
     FROM consultas c
     INNER JOIN pacientes p ON c.paciente_id = p.id
     INNER JOIN funcionarios f ON c.funcionario_id = f.id
+    LEFT JOIN medicos m ON m.id_funcionario = f.id
     WHERE c.unidade LIKE ?
     ORDER BY c.data_hora DESC
   `, [`%${unidade}%`]);
@@ -237,8 +243,15 @@ export async function AtualizarConsulta(idConsulta, dadosConsulta) {
     statusNormalizado = 'Concluída';
   }
 
-  let funcionario_id = null;
+  // Buscar funcionario_id atual da consulta
+  let [consultaAtual] = await connection.query(
+    `SELECT funcionario_id FROM consultas WHERE id = ?`,
+    [idConsulta]
+  );
 
+  let funcionario_id = consultaAtual[0]?.funcionario_id;
+
+  // Se um novo medico_id foi fornecido, buscar o funcionario_id correspondente
   if (medico_id) {
     let [medico] = await connection.query(
       `SELECT id_funcionario FROM medicos WHERE id = ?`,
@@ -248,6 +261,11 @@ export async function AtualizarConsulta(idConsulta, dadosConsulta) {
     if (medico.length) {
       funcionario_id = medico[0].id_funcionario;
     }
+  }
+
+  // Se não encontrou funcionario_id, lançar erro
+  if (!funcionario_id) {
+    throw new Error("Não foi possível determinar o funcionário/médico da consulta");
   }
 
   let [resultado] = await connection.query(`

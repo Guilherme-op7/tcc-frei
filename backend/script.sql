@@ -71,7 +71,7 @@ create table consultas (
     data_hora datetime not null,
     tipo_consulta varchar(100),
     unidade varchar(100),
-    status enum('Agendada','Confirmada','Em Andamento','Concluída') default 'Agendada',
+    status enum('Agendada','Confirmada','Em Andamento','Concluída','Cancelada') default 'Agendada',
     foreign key (paciente_id) references pacientes(id) on delete cascade,
     foreign key (funcionario_id) references funcionarios(id) on delete cascade
 );
