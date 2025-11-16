@@ -28,3 +28,4 @@ export default function LinhaMedico({ medico, deletarMedico, aoEditar }) {
   );
 }
 
+

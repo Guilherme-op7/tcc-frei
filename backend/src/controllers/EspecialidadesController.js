@@ -19,3 +19,4 @@ endpoints.get("/especialidades", autenticador, async (req, res) => {
 
 export default endpoints;
 
+

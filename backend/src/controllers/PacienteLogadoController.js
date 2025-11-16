@@ -98,3 +98,4 @@ endpoints.get('/paciente/historico', autenticador, async (req, res) => {
 
 export default endpoints;
 
+

@@ -93,3 +93,4 @@ endpoints.get('/medico/meus-pacientes', autenticador, async (req, res) => {
 
 export default endpoints;
 
+

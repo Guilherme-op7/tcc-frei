@@ -32,3 +32,4 @@ export default function TabelaMedicos({ medicos, deletarMedico, aoEditar }) {
   );
 }
 
+

@@ -1,10 +1,45 @@
+-- ============================================================
+-- SCRIPT SQL - SISTEMA DE GESTÃO SUS
+-- ============================================================
+-- Este script cria o banco de dados e popula com dados de teste
+-- 
+-- ========== CREDENCIAIS DE LOGIN PARA TESTE ==========
+-- 
+-- ADMINISTRADOR:
+--   Email: admin@saude.com
+--   Senha: admin123hash
+--
+-- MÉDICOS (todos com senha: senha123hash):
+--   Email: joao.silva@saude.com      | Especialidade: Clínica Geral
+--   Email: maria.santos@saude.com    | Especialidade: Cardiologia
+--   Email: pedro.oliveira@saude.com  | Especialidade: Ortopedia
+--   Email: ana.costa@saude.com       | Especialidade: Pediatria
+--   Email: carlos.mendes@saude.com   | Especialidade: Neurologia
+--   Email: juliana.lima@saude.com    | Especialidade: Dermatologia
+--   Email: roberto.alves@saude.com   | Especialidade: Psiquiatria
+--   Email: fernanda.rocha@saude.com  | Especialidade: Ginecologia
+--
+-- PACIENTES (todos com senha: paciente123hash):
+--   Email: jose.santos@email.com
+--   Email: maria.oliveira@email.com
+--   Email: antonio.souza@email.com
+--   Email: francisca.lima@email.com
+--   Email: paulo.alves@email.com
+--
+-- ========== DADOS DE TESTE ==========
+-- - Consultas futuras: criadas usando DATE_ADD(NOW(), INTERVAL X DAY)
+-- - Consultas passadas: criadas usando DATE_SUB(NOW(), INTERVAL X DAY)
+-- - Prescrições ativas: têm fim >= CURDATE() ou fim IS NULL
+-- - Cada médico tem um id_funcionario único (1-8)
+-- - Médicos têm consultas agendadas e concluídas para testar
+-- - Pacientes têm consultas futuras e histórico para testar
+-- ============================================================
+
 drop database if exists saudedb;
 
 create database saudedb;
 
 use saudedb;
-
-select * from usuario;
 
 create table funcionarios (
     id int primary key auto_increment,
@@ -74,8 +109,6 @@ create table consultas (
     foreign key (paciente_id) references pacientes(id) on delete cascade,
     foreign key (funcionario_id) references funcionarios(id) on delete cascade
 );
-
-select * from medicos;
 
 create table medicamentos (
     id int auto_increment primary key,
@@ -213,6 +246,8 @@ INSERT INTO especialidades (nome, valor, cor) VALUES
 ('Reumatologia', 770, '#6C5CE7'),
 ('Oncologia', 950, '#E17055');
 
+-- Médicos: cada médico precisa ter um id_funcionario único
+-- Usando os funcionários 1-8 que são médicos
 INSERT INTO medicos (id_funcionario, nome, email, telefone, salario, crm, id_especialidade) VALUES
 (1, 'Dr. João Silva', 'joao.silva@saude.com', '(11) 98765-4321', 15000.00, 'CRM/SP 123456', 8),
 (2, 'Dra. Maria Santos', 'maria.santos@saude.com', '(11) 98765-4322', 18000.00, 'CRM/SP 234567', 1),
@@ -221,41 +256,30 @@ INSERT INTO medicos (id_funcionario, nome, email, telefone, salario, crm, id_esp
 (5, 'Dr. Carlos Mendes', 'carlos.mendes@saude.com', '(11) 98765-4325', 19000.00, 'CRM/SP 567890', 4),
 (6, 'Dra. Juliana Lima', 'juliana.lima@saude.com', '(11) 98765-4326', 15500.00, 'CRM/SP 678901', 5),
 (7, 'Dr. Roberto Alves', 'roberto.alves@saude.com', '(11) 98765-4327', 16500.00, 'CRM/SP 789012', 6),
-(8, 'Dra. Fernanda Rocha', 'fernanda.rocha@saude.com', '(11) 98765-4328', 17500.00, 'CRM/SP 890123', 7),
-(1, 'Dr. Alberto Mendes', 'alberto.mendes@saude.com', '(11) 98765-5001', 16200.00, 'CRM/SP 131415', 1),
-(2, 'Dra. Beatriz Lemos', 'beatriz.lemos@saude.com', '(11) 98765-5002', 15900.00, 'CRM/SP 141516', 3),
-(3, 'Dr. Ricardo Borges', 'ricardo.borges@saude.com', '(11) 98765-5003', 17800.00, 'CRM/SP 151617', 11),
-(4, 'Dra. Sandra Reis', 'sandra.reis@saude.com', '(11) 98765-5004', 16400.00, 'CRM/SP 161718', 7),
-(5, 'Dr. Marcelo Tavares', 'marcelo.tavares@saude.com', '(11) 98765-5005', 18200.00, 'CRM/SP 171819', 9),
-(6, 'Dra. Luciana Pires', 'luciana.pires@saude.com', '(11) 98765-5006', 15700.00, 'CRM/SP 181920', 10),
-(7, 'Dr. Thiago Novaes', 'thiago.novaes@saude.com', '(11) 98765-5007', 16900.00, 'CRM/SP 192021', 12),
-(8, 'Dra. Camila Dias', 'camila.dias@saude.com', '(11) 98765-5008', 17300.00, 'CRM/SP 202122', 13),
-(1, 'Dr. Rafael Porto', 'rafael.porto@saude.com', '(11) 98765-5009', 19100.00, 'CRM/SP 212223', 15),
-(2, 'Dra. Patricia Lins', 'patricia.lins@saude.com', '(11) 98765-5010', 15400.00, 'CRM/SP 222324', 8),
-(3, 'Dr. Gustavo Matos', 'gustavo.matos@saude.com', '(11) 98765-5011', 16700.00, 'CRM/SP 232425', 14),
-(4, 'Dra. Vanessa Cruz', 'vanessa.cruz@saude.com', '(11) 98765-5012', 17600.00, 'CRM/SP 242526', 4);
+(8, 'Dra. Fernanda Rocha', 'fernanda.rocha@saude.com', '(11) 98765-4328', 17500.00, 'CRM/SP 890123', 7);
 
+-- Pacientes: garantindo que os emails correspondam aos da tabela usuario
 INSERT INTO pacientes (nome, cpf, cartao_sus, data_nascimento, telefone, email, endereco, tipo_sanguineo, alergias, contato_emergencia, status) VALUES
-('José Santos Silva', '111.222.333-44', '123456789012345', '1965-03-15', '(11) 91234-5678', 'jose.santos@email.com', 'Rua das Flores, 123 - São Paulo/SP', 'O+', 'Nenhuma', '(11) 91234-5679', 'Inativo'),
-('Maria Aparecida Oliveira', '222.333.444-55', '234567890123456', '1972-08-22', '(11) 92345-6789', 'maria.oliveira@email.com', 'Av. Paulista, 456 - São Paulo/SP', 'A+', 'Penicilina', '(11) 92345-6790', 'Ativo'),
-('Antonio Carlos Souza', '333.444.555-66', '345678901234567', '1958-11-10', '(11) 93456-7890', 'antonio.souza@email.com', 'Rua Augusta, 789 - São Paulo/SP', 'B+', 'Dipirona', '(11) 93456-7891', 'Ativo'),
-('Francisca Lima', '444.555.666-77', '456789012345678', '1980-05-18', '(11) 94567-8901', 'francisca.lima@email.com', 'Rua Consolação, 321 - São Paulo/SP', 'AB+', 'Nenhuma', '(11) 94567-8902', 'Ativo'),
-('Paulo Roberto Alves', '555.666.777-88', '567890123456789', '1963-12-25', '(11) 95678-9012', 'paulo.alves@email.com', 'Av. Rebouças, 654 - São Paulo/SP', 'O-', 'Lactose', '(11) 95678-9013', 'Ativo'),
-('Ana Paula Costa', '666.777.888-99', '678901234567890', '1990-07-08', '(11) 96789-0123', 'ana.costa@email.com', 'Rua Vergueiro, 987 - São Paulo/SP', 'A-', 'Nenhuma', '(11) 96789-0124', 'Ativo'),
-('Carlos Eduardo Martins', '777.888.999-00', '789012345678901', '1975-02-14', '(11) 97890-1234', 'carlos.martins@email.com', 'Rua da Mooca, 147 - São Paulo/SP', 'B-', 'AAS', '(11) 97890-1235', 'Ativo'),
-('Mariana Silva Santos', '888.999.000-11', '890123456789012', '1988-09-30', '(11) 98901-2345', 'mariana.santos@email.com', 'Av. Ipiranga, 258 - São Paulo/SP', 'AB-', 'Nenhuma', '(11) 98901-2346', 'Ativo'),
-('Roberto Ferreira Lima', '999.000.111-22', '901234567890123', '1955-04-12', '(11) 99012-3456', 'roberto.lima@email.com', 'Rua Barão de Itapetininga, 369 - São Paulo/SP', 'O+', 'Iodo', '(11) 99012-3457', 'Ativo'),
-('Juliana Rodrigues', '000.111.222-33', '012345678901234', '1995-06-20', '(11) 90123-4567', 'juliana.rodrigues@email.com', 'Av. São João, 741 - São Paulo/SP', 'A+', 'Nenhuma', '(11) 90123-4568', 'Ativo'),
-('Fernando Oliveira', '111.222.333-45', '123456789012346', '1968-01-30', '(11) 91234-5680', 'fernando.oliveira@email.com', 'Rua Boa Vista, 852 - São Paulo/SP', 'B+', 'Nenhuma', '(11) 91234-5681', 'Ativo'),
-('Sandra Pereira', '222.333.444-56', '234567890123457', '1983-10-05', '(11) 92345-6791', 'sandra.pereira@email.com', 'Av. Brigadeiro, 963 - São Paulo/SP', 'O+', 'Glúten', '(11) 92345-6792', 'Ativo'),
-('Ricardo Mendes', '333.444.555-67', '345678901234568', '1970-07-19', '(11) 93456-7892', 'ricardo.mendes@email.com', 'Rua Liberdade, 159 - São Paulo/SP', 'A-', 'Nenhuma', '(11) 93456-7893', 'Ativo'),
-('Patrícia Almeida', '444.555.666-78', '456789012345679', '1992-04-27', '(11) 94567-8903', 'patricia.almeida@email.com', 'Av. Ibirapuera, 753 - São Paulo/SP', 'AB+', 'Frutos do mar', '(11) 94567-8904', 'Ativo'),
-('Marcos Vieira', '555.666.777-89', '567890123456780', '1960-11-16', '(11) 95678-9014', 'marcos.vieira@email.com', 'Rua Pinheiros, 357 - São Paulo/SP', 'O-', 'Nenhuma', '(11) 95678-9015', 'Ativo'),
-('Luciana Campos', '666.777.888-90', '678901234567891', '1986-03-08', '(11) 96789-0125', 'luciana.campos@email.com', 'Av. Faria Lima, 951 - São Paulo/SP', 'B+', 'Dipirona', '(11) 96789-0126', 'Ativo'),
-('Diego Souza', '777.888.999-01', '789012345678902', '1978-12-23', '(11) 97890-1236', 'diego.souza@email.com', 'Rua Tatuapé, 456 - São Paulo/SP', 'A+', 'Nenhuma', '(11) 97890-1237', 'Ativo'),
-('Camila Ribeiro', '888.999.000-12', '890123456789013', '1993-08-14', '(11) 98901-2347', 'camila.ribeiro@email.com', 'Av. Santo Amaro, 789 - São Paulo/SP', 'AB-', 'Penicilina', '(11) 98901-2348', 'Ativo'),
-('Rafael Costa', '999.000.111-23', '901234567890124', '1967-05-29', '(11) 99012-3458', 'rafael.costa@email.com', 'Rua Vila Mariana, 321 - São Paulo/SP', 'O+', 'Nenhuma', '(11) 99012-3459', 'Ativo'),
-('Beatriz Martins', '000.111.222-34', '012345678901235', '1985-02-11', '(11) 90123-4569', 'beatriz.martins@email.com', 'Av. Jabaquara, 654 - São Paulo/SP', 'B-', 'Lactose', '(11) 90123-4570', 'Ativo');
+('José Santos Silva', '111.222.333-44', '123456789012345', '1965-03-15', '(11) 91234-5678', 'jose.santos@email.com', 'Rua das Flores, 123 - São Paulo/SP', 'O+', 'Nenhuma', '(11) 91234-5679', 'ativo'),
+('Maria Aparecida Oliveira', '222.333.444-55', '234567890123456', '1972-08-22', '(11) 92345-6789', 'maria.oliveira@email.com', 'Av. Paulista, 456 - São Paulo/SP', 'A+', 'Penicilina', '(11) 92345-6790', 'ativo'),
+('Antonio Carlos Souza', '333.444.555-66', '345678901234567', '1958-11-10', '(11) 93456-7890', 'antonio.souza@email.com', 'Rua Augusta, 789 - São Paulo/SP', 'B+', 'Dipirona', '(11) 93456-7891', 'ativo'),
+('Francisca Lima', '444.555.666-77', '456789012345678', '1980-05-18', '(11) 94567-8901', 'francisca.lima@email.com', 'Rua Consolação, 321 - São Paulo/SP', 'AB+', 'Nenhuma', '(11) 94567-8902', 'ativo'),
+('Paulo Roberto Alves', '555.666.777-88', '567890123456789', '1963-12-25', '(11) 95678-9012', 'paulo.alves@email.com', 'Av. Rebouças, 654 - São Paulo/SP', 'O-', 'Lactose', '(11) 95678-9013', 'ativo'),
+('Ana Paula Costa', '666.777.888-99', '678901234567890', '1990-07-08', '(11) 96789-0123', 'ana.costa@email.com', 'Rua Vergueiro, 987 - São Paulo/SP', 'A-', 'Nenhuma', '(11) 96789-0124', 'ativo'),
+('Carlos Eduardo Martins', '777.888.999-00', '789012345678901', '1975-02-14', '(11) 97890-1234', 'carlos.martins@email.com', 'Rua da Mooca, 147 - São Paulo/SP', 'B-', 'AAS', '(11) 97890-1235', 'ativo'),
+('Mariana Silva Santos', '888.999.000-11', '890123456789012', '1988-09-30', '(11) 98901-2345', 'mariana.santos@email.com', 'Av. Ipiranga, 258 - São Paulo/SP', 'AB-', 'Nenhuma', '(11) 98901-2346', 'ativo'),
+('Roberto Ferreira Lima', '999.000.111-22', '901234567890123', '1955-04-12', '(11) 99012-3456', 'roberto.lima@email.com', 'Rua Barão de Itapetininga, 369 - São Paulo/SP', 'O+', 'Iodo', '(11) 99012-3457', 'ativo'),
+('Juliana Rodrigues', '000.111.222-33', '012345678901234', '1995-06-20', '(11) 90123-4567', 'juliana.rodrigues@email.com', 'Av. São João, 741 - São Paulo/SP', 'A+', 'Nenhuma', '(11) 90123-4568', 'ativo'),
+('Fernando Oliveira', '111.222.333-45', '123456789012346', '1968-01-30', '(11) 91234-5680', 'fernando.oliveira@email.com', 'Rua Boa Vista, 852 - São Paulo/SP', 'B+', 'Nenhuma', '(11) 91234-5681', 'ativo'),
+('Sandra Pereira', '222.333.444-56', '234567890123457', '1983-10-05', '(11) 92345-6791', 'sandra.pereira@email.com', 'Av. Brigadeiro, 963 - São Paulo/SP', 'O+', 'Glúten', '(11) 92345-6792', 'ativo'),
+('Ricardo Mendes', '333.444.555-67', '345678901234568', '1970-07-19', '(11) 93456-7892', 'ricardo.mendes@email.com', 'Rua Liberdade, 159 - São Paulo/SP', 'A-', 'Nenhuma', '(11) 93456-7893', 'ativo'),
+('Patrícia Almeida', '444.555.666-78', '456789012345679', '1992-04-27', '(11) 94567-8903', 'patricia.almeida@email.com', 'Av. Ibirapuera, 753 - São Paulo/SP', 'AB+', 'Frutos do mar', '(11) 94567-8904', 'ativo'),
+('Marcos Vieira', '555.666.777-89', '567890123456780', '1960-11-16', '(11) 95678-9014', 'marcos.vieira@email.com', 'Rua Pinheiros, 357 - São Paulo/SP', 'O-', 'Nenhuma', '(11) 95678-9015', 'ativo'),
+('Luciana Campos', '666.777.888-90', '678901234567891', '1986-03-08', '(11) 96789-0125', 'luciana.campos@email.com', 'Av. Faria Lima, 951 - São Paulo/SP', 'B+', 'Dipirona', '(11) 96789-0126', 'ativo'),
+('Diego Souza', '777.888.999-01', '789012345678902', '1978-12-23', '(11) 97890-1236', 'diego.souza@email.com', 'Rua Tatuapé, 456 - São Paulo/SP', 'A+', 'Nenhuma', '(11) 97890-1237', 'ativo'),
+('Camila Ribeiro', '888.999.000-12', '890123456789013', '1993-08-14', '(11) 98901-2347', 'camila.ribeiro@email.com', 'Av. Santo Amaro, 789 - São Paulo/SP', 'AB-', 'Penicilina', '(11) 98901-2348', 'ativo'),
+('Rafael Costa', '999.000.111-23', '901234567890124', '1967-05-29', '(11) 99012-3458', 'rafael.costa@email.com', 'Rua Vila Mariana, 321 - São Paulo/SP', 'O+', 'Nenhuma', '(11) 99012-3459', 'ativo'),
+('Beatriz Martins', '000.111.222-34', '012345678901235', '1985-02-11', '(11) 90123-4569', 'beatriz.martins@email.com', 'Av. Jabaquara, 654 - São Paulo/SP', 'B-', 'Lactose', '(11) 90123-4570', 'ativo');
 
 INSERT INTO unidades_saude (nome, endereco) VALUES
 ('UBS Central', 'Av. Paulista, 1000 - São Paulo/SP'),
@@ -269,49 +293,71 @@ INSERT INTO unidades_saude (nome, endereco) VALUES
 ('UBS Lapa', 'Rua Guaicurus, 250 - São Paulo/SP'),
 ('UBS Santo Amaro', 'Av. Santo Amaro, 900 - São Paulo/SP');
 
+-- Consultas: misturando futuras (Agendadas/Confirmadas) e passadas (Concluídas)
+-- Usando datas futuras para próximas consultas e passadas para histórico
+-- Cada médico (funcionario_id 1-8) terá consultas com diferentes pacientes
 INSERT INTO consultas (paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, status) VALUES
-(1, 1, '2025-10-15 09:00:00', 'Consulta Geral', 'UBS Central', 'Agendada'),
-(2, 2, '2025-10-15 10:00:00', 'Consulta Especializada', 'UBS Vila Mariana', 'Agendada'),
-(3, 3, '2025-10-16 14:00:00', 'Consulta Especializada', 'UBS Mooca', 'Agendada'),
-(4, 4, '2025-10-17 11:00:00', 'Consulta Especializada', 'UBS Pinheiros', 'Agendada'),
-(5, 5, '2025-10-18 15:00:00', 'Consulta Especializada', 'UBS Ipiranga', 'Agendada'),
-(6, 1, '2025-10-20 08:30:00', 'Retorno', 'UBS Central', 'Agendada'),
-(7, 6, '2025-10-21 13:00:00', 'Consulta Especializada', 'UBS Butantã', 'Agendada'),
-(8, 7, '2025-10-22 16:00:00', 'Consulta Especializada', 'UBS Tatuapé', 'Agendada'),
-(9, 8, '2025-10-23 09:30:00', 'Consulta Especializada', 'UBS Santana', 'Agendada'),
-(10, 1, '2025-10-24 10:30:00', 'Consulta Geral', 'UBS Lapa', 'Agendada'),
-(11, 2, '2025-09-10 09:00:00', 'Consulta Especializada', 'UBS Central', 'Concluída'),
-(12, 3, '2025-09-12 14:00:00', 'Consulta Especializada', 'UBS Vila Mariana', 'Concluída'),
-(13, 4, '2025-09-15 11:00:00', 'Consulta Especializada', 'UBS Mooca', 'Concluída'),
-(14, 5, '2025-09-18 15:30:00', 'Consulta Especializada', 'UBS Pinheiros', 'Concluída'),
-(15, 1, '2025-09-20 08:00:00', 'Consulta Geral', 'UBS Ipiranga', 'Concluída'),
-(16, 6, '2025-09-22 13:30:00', 'Consulta Especializada', 'UBS Butantã', 'Concluída'),
-(17, 7, '2025-09-25 16:00:00', 'Consulta Especializada', 'UBS Tatuapé', 'Cancelada'),
-(18, 8, '2025-09-28 09:00:00', 'Consulta Especializada', 'UBS Santana', 'Concluída'),
-(19, 2, '2025-10-01 10:00:00', 'Consulta Especializada', 'UBS Lapa', 'Concluída'),
-(20, 1, '2025-10-05 14:30:00', 'Retorno', 'UBS Santo Amaro', 'Concluída');
+-- Consultas FUTURAS (Agendadas/Confirmadas) - para testar "próximas consultas"
+(2, 1, DATE_ADD(NOW(), INTERVAL 3 DAY), 'Consulta Geral', 'UBS Central', 'Agendada'),
+(3, 2, DATE_ADD(NOW(), INTERVAL 5 DAY), 'Consulta Especializada', 'UBS Vila Mariana', 'Confirmada'),
+(4, 3, DATE_ADD(NOW(), INTERVAL 7 DAY), 'Consulta Especializada', 'UBS Mooca', 'Agendada'),
+(5, 4, DATE_ADD(NOW(), INTERVAL 10 DAY), 'Consulta Especializada', 'UBS Pinheiros', 'Confirmada'),
+(6, 5, DATE_ADD(NOW(), INTERVAL 12 DAY), 'Consulta Especializada', 'UBS Ipiranga', 'Agendada'),
+(7, 1, DATE_ADD(NOW(), INTERVAL 15 DAY), 'Retorno', 'UBS Central', 'Agendada'),
+(8, 2, DATE_ADD(NOW(), INTERVAL 18 DAY), 'Consulta Especializada', 'UBS Vila Mariana', 'Agendada'),
+(9, 3, DATE_ADD(NOW(), INTERVAL 20 DAY), 'Consulta Especializada', 'UBS Mooca', 'Confirmada'),
+(10, 4, DATE_ADD(NOW(), INTERVAL 22 DAY), 'Consulta Especializada', 'UBS Pinheiros', 'Agendada'),
+(11, 5, DATE_ADD(NOW(), INTERVAL 25 DAY), 'Consulta Geral', 'UBS Ipiranga', 'Agendada'),
+(12, 6, DATE_ADD(NOW(), INTERVAL 2 DAY), 'Consulta Especializada', 'UBS Butantã', 'Agendada'),
+(13, 7, DATE_ADD(NOW(), INTERVAL 4 DAY), 'Consulta Especializada', 'UBS Tatuapé', 'Confirmada'),
+(14, 8, DATE_ADD(NOW(), INTERVAL 6 DAY), 'Consulta Especializada', 'UBS Santana', 'Agendada'),
+(15, 1, DATE_ADD(NOW(), INTERVAL 8 DAY), 'Consulta Geral', 'UBS Central', 'Agendada'),
+(16, 2, DATE_ADD(NOW(), INTERVAL 9 DAY), 'Retorno', 'UBS Vila Mariana', 'Agendada'),
+-- Consultas PASSADAS (Concluídas) - para testar histórico
+(2, 1, DATE_SUB(NOW(), INTERVAL 30 DAY), 'Consulta Geral', 'UBS Central', 'Concluída'),
+(3, 2, DATE_SUB(NOW(), INTERVAL 25 DAY), 'Consulta Especializada', 'UBS Vila Mariana', 'Concluída'),
+(4, 3, DATE_SUB(NOW(), INTERVAL 20 DAY), 'Consulta Especializada', 'UBS Mooca', 'Concluída'),
+(5, 4, DATE_SUB(NOW(), INTERVAL 15 DAY), 'Consulta Especializada', 'UBS Pinheiros', 'Concluída'),
+(6, 5, DATE_SUB(NOW(), INTERVAL 10 DAY), 'Consulta Especializada', 'UBS Ipiranga', 'Concluída'),
+(7, 1, DATE_SUB(NOW(), INTERVAL 8 DAY), 'Retorno', 'UBS Central', 'Concluída'),
+(8, 2, DATE_SUB(NOW(), INTERVAL 5 DAY), 'Consulta Especializada', 'UBS Vila Mariana', 'Concluída'),
+(9, 3, DATE_SUB(NOW(), INTERVAL 3 DAY), 'Consulta Especializada', 'UBS Mooca', 'Concluída'),
+(10, 4, DATE_SUB(NOW(), INTERVAL 2 DAY), 'Consulta Especializada', 'UBS Pinheiros', 'Concluída'),
+(11, 5, DATE_SUB(NOW(), INTERVAL 1 DAY), 'Consulta Geral', 'UBS Ipiranga', 'Concluída'),
+(12, 6, DATE_SUB(NOW(), INTERVAL 28 DAY), 'Consulta Especializada', 'UBS Butantã', 'Concluída'),
+(13, 7, DATE_SUB(NOW(), INTERVAL 22 DAY), 'Consulta Especializada', 'UBS Tatuapé', 'Concluída'),
+(14, 8, DATE_SUB(NOW(), INTERVAL 18 DAY), 'Consulta Especializada', 'UBS Santana', 'Concluída'),
+(15, 1, DATE_SUB(NOW(), INTERVAL 12 DAY), 'Consulta Geral', 'UBS Central', 'Concluída'),
+(16, 2, DATE_SUB(NOW(), INTERVAL 7 DAY), 'Retorno', 'UBS Vila Mariana', 'Concluída'),
+(17, 3, DATE_SUB(NOW(), INTERVAL 35 DAY), 'Consulta Especializada', 'UBS Mooca', 'Concluída'),
+(18, 4, DATE_SUB(NOW(), INTERVAL 40 DAY), 'Consulta Especializada', 'UBS Pinheiros', 'Concluída'),
+(19, 5, DATE_SUB(NOW(), INTERVAL 45 DAY), 'Consulta Especializada', 'UBS Ipiranga', 'Concluída'),
+(20, 6, DATE_SUB(NOW(), INTERVAL 50 DAY), 'Consulta Especializada', 'UBS Butantã', 'Concluída');
 
+-- Prescrições: algumas ativas (fim >= CURDATE() ou NULL) e algumas finalizadas
+-- Prescrições ativas aparecerão na contagem de "prescricoesAtivas"
 INSERT INTO prescricoes (paciente_id, medicamento, dosagem, frequencia, inicio, fim, observacoes, medico_nome) VALUES
-(1, 'Losartana', '50mg', '1x ao dia', '2025-09-10', '2025-12-10', 'Tomar em jejum', 'Dr. João Silva'),
-(2, 'Atenolol', '25mg', '2x ao dia', '2025-09-12', '2025-12-12', 'Após as refeições', 'Dra. Maria Santos'),
-(3, 'Ibuprofeno', '600mg', '3x ao dia', '2025-09-15', '2025-09-25', 'Tomar com alimento', 'Dr. Pedro Oliveira'),
-(4, 'Paracetamol', '500mg', '4x ao dia', '2025-09-18', '2025-09-23', 'Em caso de febre', 'Dra. Ana Costa'),
-(5, 'Fluoxetina', '20mg', '1x ao dia', '2025-09-20', '2026-03-20', 'Tomar pela manhã', 'Dr. Carlos Mendes'),
-(6, 'Omeprazol', '20mg', '1x ao dia', '2025-09-22', '2025-12-22', 'Em jejum', 'Dr. João Silva'),
-(7, 'Hidroclorotiazida', '25mg', '1x ao dia', '2025-09-25', '2026-03-25', 'Tomar pela manhã', 'Dra. Juliana Lima'),
-(8, 'Clonazepam', '2mg', '1x ao dia', '2025-09-28', '2025-12-28', 'Antes de dormir', 'Dr. Roberto Alves'),
-(9, 'Ácido Fólico', '5mg', '1x ao dia', '2025-10-01', '2026-04-01', 'Durante gestação', 'Dra. Fernanda Rocha'),
-(10, 'Metformina', '850mg', '2x ao dia', '2025-10-05', '2026-04-05', 'Após refeições', 'Dr. João Silva'),
-(11, 'Sinvastatina', '20mg', '1x ao dia', '2025-09-10', '2026-03-10', 'À noite', 'Dra. Maria Santos'),
-(12, 'Amoxicilina', '500mg', '3x ao dia', '2025-09-12', '2025-09-22', 'Completar tratamento', 'Dr. Pedro Oliveira'),
-(13, 'Salbutamol', '100mcg', '2 puffs 4x ao dia', '2025-09-15', '2026-03-15', 'Em caso de falta de ar', 'Dra. Ana Costa'),
-(14, 'Levotiroxina', '50mcg', '1x ao dia', '2025-09-18', '2026-09-18', 'Em jejum', 'Dr. Carlos Mendes'),
-(15, 'Dipirona', '500mg', '3x ao dia', '2025-09-20', '2025-09-27', 'Em caso de dor', 'Dr. João Silva'),
-(16, 'Azitromicina', '500mg', '1x ao dia', '2025-09-22', '2025-09-27', 'Jejum de 1h antes', 'Dra. Juliana Lima'),
-(17, 'Loratadina', '10mg', '1x ao dia', '2025-09-25', '2025-10-25', 'Antes de dormir', 'Dr. Roberto Alves'),
-(18, 'Vitamina D', '1000UI', '1x ao dia', '2025-09-28', '2026-03-28', 'Com refeição', 'Dra. Fernanda Rocha'),
-(19, 'Captopril', '25mg', '2x ao dia', '2025-10-01', '2026-04-01', 'Em jejum', 'Dra. Maria Santos'),
-(20, 'Atorvastatina', '20mg', '1x ao dia', '2025-10-05', '2026-04-05', 'À noite', 'Dr. João Silva');
+-- Prescrições ATIVAS (fim no futuro ou NULL)
+(2, 'Losartana', '50mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_ADD(NOW(), INTERVAL 60 DAY), 'Tomar em jejum', 'Dr. João Silva'),
+(3, 'Atenolol', '25mg', '2x ao dia', DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_ADD(NOW(), INTERVAL 65 DAY), 'Após as refeições', 'Dra. Maria Santos'),
+(5, 'Fluoxetina', '20mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_ADD(NOW(), INTERVAL 150 DAY), 'Tomar pela manhã', 'Dr. Carlos Mendes'),
+(6, 'Omeprazol', '20mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 15 DAY), DATE_ADD(NOW(), INTERVAL 75 DAY), 'Em jejum', 'Dr. João Silva'),
+(7, 'Hidroclorotiazida', '25mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 10 DAY), DATE_ADD(NOW(), INTERVAL 170 DAY), 'Tomar pela manhã', 'Dra. Juliana Lima'),
+(9, 'Ácido Fólico', '5mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 5 DAY), DATE_ADD(NOW(), INTERVAL 180 DAY), 'Durante gestação', 'Dra. Fernanda Rocha'),
+(10, 'Metformina', '850mg', '2x ao dia', DATE_SUB(NOW(), INTERVAL 2 DAY), DATE_ADD(NOW(), INTERVAL 185 DAY), 'Após refeições', 'Dr. João Silva'),
+(11, 'Sinvastatina', '20mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 28 DAY), DATE_ADD(NOW(), INTERVAL 120 DAY), 'À noite', 'Dra. Maria Santos'),
+(13, 'Salbutamol', '100mcg', '2 puffs 4x ao dia', DATE_SUB(NOW(), INTERVAL 22 DAY), DATE_ADD(NOW(), INTERVAL 140 DAY), 'Em caso de falta de ar', 'Dra. Ana Costa'),
+(14, 'Levotiroxina', '50mcg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 18 DAY), NULL, 'Em jejum - uso contínuo', 'Dr. Carlos Mendes'),
+(18, 'Vitamina D', '1000UI', '1x ao dia', DATE_SUB(NOW(), INTERVAL 12 DAY), DATE_ADD(NOW(), INTERVAL 110 DAY), 'Com refeição', 'Dra. Fernanda Rocha'),
+(19, 'Captopril', '25mg', '2x ao dia', DATE_SUB(NOW(), INTERVAL 7 DAY), DATE_ADD(NOW(), INTERVAL 175 DAY), 'Em jejum', 'Dra. Maria Santos'),
+(20, 'Atorvastatina', '20mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 1 DAY), DATE_ADD(NOW(), INTERVAL 180 DAY), 'À noite', 'Dr. João Silva'),
+-- Prescrições FINALIZADAS (fim no passado) - para histórico
+(4, 'Paracetamol', '500mg', '4x ao dia', DATE_SUB(NOW(), INTERVAL 40 DAY), DATE_SUB(NOW(), INTERVAL 35 DAY), 'Em caso de febre', 'Dra. Ana Costa'),
+(8, 'Clonazepam', '2mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 50 DAY), DATE_SUB(NOW(), INTERVAL 20 DAY), 'Antes de dormir', 'Dr. Roberto Alves'),
+(12, 'Amoxicilina', '500mg', '3x ao dia', DATE_SUB(NOW(), INTERVAL 45 DAY), DATE_SUB(NOW(), INTERVAL 35 DAY), 'Completar tratamento', 'Dr. Pedro Oliveira'),
+(15, 'Dipirona', '500mg', '3x ao dia', DATE_SUB(NOW(), INTERVAL 30 DAY), DATE_SUB(NOW(), INTERVAL 23 DAY), 'Em caso de dor', 'Dr. João Silva'),
+(16, 'Azitromicina', '500mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 25 DAY), DATE_SUB(NOW(), INTERVAL 20 DAY), 'Jejum de 1h antes', 'Dra. Juliana Lima'),
+(17, 'Loratadina', '10mg', '1x ao dia', DATE_SUB(NOW(), INTERVAL 20 DAY), DATE_SUB(NOW(), INTERVAL 5 DAY), 'Antes de dormir', 'Dr. Roberto Alves');
 
 INSERT INTO consultas_por_mes (mes, consultas, pacientes) VALUES
 ('Jan/25', 320, 280),
