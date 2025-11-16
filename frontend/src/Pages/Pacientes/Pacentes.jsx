@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Calendar,
   FileText,
@@ -9,6 +9,8 @@ import {
   Download,
 } from "lucide-react";
 import { toast } from "sonner";
+import api from "../../api";
+import ModalAgendamento from "./ModalAgendamento";
 
 import imgLogo from "../../assets/images/logo.png";
 import { useNavigate } from "react-router";
@@ -17,29 +19,108 @@ export default function PacientesPa() {
   const [showFullHistory, setShowFullHistory] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [paciente, setPaciente] = useState(null);
+  const [estatisticas, setEstatisticas] = useState({
+    consultasAgendadas: 0,
+    consultasRealizadas: 0,
+    prescricoesAtivas: 0,
+  });
+  const [proximasConsultas, setProximasConsultas] = useState([]);
+  const [historico, setHistorico] = useState({ consultas: [], prescricoes: [] });
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    async function carregarDados() {
+      try {
+        const usuarioStorage = localStorage.getItem("usuario");
+        if (usuarioStorage) {
+          setUsuario(JSON.parse(usuarioStorage));
+        }
+
+        const [resPaciente, resEstatisticas, resProximas, resHistorico] = await Promise.all([
+          api.get("/paciente/meus-dados"),
+          api.get("/paciente/estatisticas"),
+          api.get("/paciente/proximas-consultas"),
+          api.get("/paciente/historico"),
+        ]);
+
+        setPaciente(resPaciente.data);
+        setEstatisticas(resEstatisticas.data);
+        setProximasConsultas(resProximas.data || []);
+        setHistorico(resHistorico.data || { consultas: [], prescricoes: [] });
+      } catch (erro) {
+        console.error("Erro ao carregar dados:", erro);
+        toast.error("Erro ao carregar dados do paciente");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    carregarDados();
+  }, []);
 
   const handleExportData = () => {
     toast.success("Dados exportados com sucesso!");
 
     const data = {
-      nome: "João Santos Da Silva",
-      cpf: "123.456.789-00",
-      dataNascimento: "1983-02-15",
-      consultas: 2,
+      nome: paciente?.nome || "",
+      cpf: paciente?.cpf || "",
+      dataNascimento: paciente?.data_nascimento || "",
+      consultas: estatisticas.consultasRealizadas,
     };
 
     console.log("Exportando:", data);
   };
 
   function handleLogout() {
-
-
     localStorage.removeItem("token");
     localStorage.removeItem("usuario");
     navigate("/");
+    toast.success("Logout realizado com sucesso!");
+  }
 
-    toast.success("Logout realizado com sucesso!")
+  function formatarData(data) {
+    if (!data) return "";
+    const date = new Date(data);
+    return date.toLocaleDateString("pt-BR");
+  }
 
+  function formatarDataHora(data) {
+    if (!data) return "";
+    const date = new Date(data);
+    return date.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  function formatarHora(data) {
+    if (!data) return "";
+    const date = new Date(data);
+    return date.toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-black">Carregando...</p>
+      </div>
+    );
+  }
+
+  if (!paciente) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-black">Paciente não encontrado</p>
+      </div>
+    );
   }
 
   return (
@@ -52,14 +133,14 @@ export default function PacientesPa() {
             <img src={imgLogo} alt="Logo SUS" className="w-14 h-14" />
             <div>
               <h1 className="text-black font-semibold text-lg">Sistema de Gestão SUS</h1>
-              <p className="text-black text-sm md:text-base">Paciente - João Santos</p>
+              <p className="text-black text-sm md:text-base">Paciente - {paciente.nome || usuario?.nome || ""}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             <div className="hidden md:block text-right">
               <p className="text-sm text-black">Paciente</p>
-              <p className="text-black">João Santos</p>
+              <p className="text-black">{paciente.nome || usuario?.nome || ""}</p>
             </div>
 
             <button
@@ -84,17 +165,17 @@ export default function PacientesPa() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Item label="Nome Completo" valor="João Santos Da Silva" />
-              <Item label="Data de Nascimento" valor="15/02/1983" />
-              <Item label="Tipo Sanguíneo" valor="O+" />
-              <Item label="CPF" valor="123.456.789-00" />
-              <Item label="Endereço" valor="Rua das Flores, 123 - Centro" />
-              <Item label="Telefone" valor="(11) 98078-4576" />
-              <Item label="Cartão SUS" valor="123456789012345" />
+              <Item label="Nome Completo" valor={paciente.nome || "-"} />
+              <Item label="Data de Nascimento" valor={formatarData(paciente.data_nascimento)} />
+              <Item label="Tipo Sanguíneo" valor={paciente.tipo_sanguineo || "-"} />
+              <Item label="CPF" valor={paciente.cpf || "-"} />
+              <Item label="Endereço" valor={paciente.endereco || "-"} />
+              <Item label="Telefone" valor={paciente.telefone || "-"} />
+              <Item label="Cartão SUS" valor={paciente.cartao_sus || "-"} />
 
               <div className="sm:col-span-2">
                 <p className="text-black mb-1 font-medium">Alergias</p>
-                <p className="text-red-500">Paracetamol, Sertralina</p>
+                <p className="text-red-500">{paciente.alergias || "Nenhuma alergia registrada"}</p>
               </div>
             </div>
 
@@ -105,15 +186,15 @@ export default function PacientesPa() {
         <section className="mb-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-            <Card cor="#75B7F5" titulo="Consultas Agendadas" valor="2">
+            <Card cor="#75B7F5" titulo="Consultas Agendadas" valor={estatisticas.consultasAgendadas || 0}>
               <Calendar className="w-6 h-6" />
             </Card>
 
-            <Card cor="#65D9D3" titulo="Consultas Realizadas" valor="2">
+            <Card cor="#65D9D3" titulo="Consultas Realizadas" valor={estatisticas.consultasRealizadas || 0}>
               <FileText className="w-6 h-6" />
             </Card>
 
-            <Card cor="#9792ED" titulo="Prescrições Ativas" valor="1">
+            <Card cor="#9792ED" titulo="Prescrições Ativas" valor={estatisticas.prescricoesAtivas || 0}>
               <X className="w-6 h-6" />
             </Card>
 
@@ -135,17 +216,27 @@ export default function PacientesPa() {
               </button>
             </div>
 
-            {/* CARD DA CONSULTA */}
-            <div className="border border-gray-300/50 rounded-lg p-6 bg-white/50">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
-                <ConsultaInfo label="Médico" valor="Dr. Carlos Oliveira" extra="Clínica Geral" />
-                <ConsultaInfo label="Data" valor="15/01/2024" />
-                <ConsultaInfo label="Horário" valor="14:00" />
-                <ConsultaInfo label="Local" valor="UBS Centro" tag="Consulta" />
-
+            {/* CARDS DAS CONSULTAS */}
+            {proximasConsultas.length > 0 ? (
+              proximasConsultas.map((consulta) => (
+                <div key={consulta.id} className="border border-gray-300/50 rounded-lg p-6 bg-white/50 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <ConsultaInfo 
+                      label="Médico" 
+                      valor={consulta.nome_medico || "Médico não informado"} 
+                      extra={consulta.especialidade || ""} 
+                    />
+                    <ConsultaInfo label="Data" valor={formatarData(consulta.data_hora)} />
+                    <ConsultaInfo label="Horário" valor={formatarHora(consulta.data_hora)} />
+                    <ConsultaInfo label="Local" valor={consulta.unidade || "-"} tag={consulta.tipo_consulta || "Consulta"} />
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="border border-gray-300/50 rounded-lg p-6 bg-white/50">
+                <p className="text-black/60">Nenhuma consulta agendada</p>
               </div>
-            </div>
+            )}
 
           </div>
         </section>
@@ -175,27 +266,28 @@ export default function PacientesPa() {
             </div>
 
             {/* HISTÓRICO PRINCIPAL */}
-            <HistoricoItem
-              data="14/01/2024"
-              diagnostico="Resfriado comum"
-              sinais={[
-                "Pressão: 120/80",
-                "Peso: 65kg",
-                "Temperatura: 36.5°C",
-                "Frequência Cardíaca: 72bpm",
-              ]}
-              prescricao="Paracetamol 500mg – 1 comprimido de 8/8h por 3 dias"
-              observacoes="Paciente apresenta sintomas leves. Repouso recomendado."
-              retorno="18/02/2024"
-            />
+            {historico.consultas.length > 0 ? (
+              <>
+                {historico.consultas.slice(0, showFullHistory ? historico.consultas.length : 1).map((consulta, index) => {
+                  const prescricao = historico.prescricoes.find(p => {
+                    const prescDate = new Date(p.inicio);
+                    const consultaDate = new Date(consulta.data_hora);
+                    return Math.abs(prescDate - consultaDate) < 7 * 24 * 60 * 60 * 1000; // 7 dias de diferença
+                  });
 
-            {showFullHistory && (
-              <HistoricoItem
-                data="10/12/2023"
-                diagnostico="Consulta de rotina – Tudo normal"
-                prescricao=""
-                observacoes="Paciente saudável e exames em ordem."
-              />
+                  return (
+                    <HistoricoItem
+                      key={consulta.id || index}
+                      data={formatarData(consulta.data_hora)}
+                      diagnostico={consulta.tipo_consulta || "Consulta"}
+                      prescricao={prescricao ? `${prescricao.medicamento} ${prescricao.dosagem || ""} – ${prescricao.frequencia || ""}` : ""}
+                      observacoes={prescricao?.observacoes || ""}
+                    />
+                  );
+                })}
+              </>
+            ) : (
+              <p className="text-black/60">Nenhum histórico disponível</p>
             )}
           </div>
         </section>
@@ -204,57 +296,14 @@ export default function PacientesPa() {
 
       {/* ===================== MODAL ===================== */}
       {openModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-md rounded-lg p-6">
-
-            <h2 className="text-lg font-semibold mb-4">Agendar Nova Consulta</h2>
-
-            <div className="space-y-4">
-
-              <div>
-                <label className="text-sm mb-1 block">Especialidade</label>
-                <select className="w-full p-2 border rounded-md">
-                  <option>Clínica Geral</option>
-                  <option>Cardiologia</option>
-                  <option>Dermatologia</option>
-                  <option>Ortopedia</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-sm mb-1 block">Data Preferencial</label>
-                <input type="date" className="w-full p-2 border rounded-md" />
-              </div>
-
-              <div>
-                <label className="text-sm mb-1 block">Unidade de Saúde</label>
-                <select className="w-full p-2 border rounded-md">
-                  <option>UBS Centro</option>
-                  <option>UBS Vila Nova</option>
-                  <option>Hospital Central</option>
-                </select>
-              </div>
-
-              <button
-                className="w-full bg-[#75B7F5] hover:bg-[#5fa3e0] text-white py-2 rounded-md"
-                onClick={() => {
-                  toast.success("Consulta agendada!");
-                  setOpenModal(false);
-                }}
-              >
-                Confirmar Agendamento
-              </button>
-
-              <button
-                className="w-full mt-2 py-2 border rounded-md"
-                onClick={() => setOpenModal(false)}
-              >
-                Cancelar
-              </button>
-
-            </div>
-          </div>
-        </div>
+        <ModalAgendamento 
+          pacienteId={paciente?.id}
+          onClose={() => setOpenModal(false)}
+          onAgendado={() => {
+            // Recarregar dados após agendamento
+            window.location.reload();
+          }}
+        />
       )}
 
     </div>

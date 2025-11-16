@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { Users, Calendar, UserCog, Pill, LogOut, BarChart3, Home, Menu, X } from "lucide-react";
+import { Users, Calendar, UserCog, Pill, LogOut, BarChart3, Home, Menu, X, UserPlus, Stethoscope } from "lucide-react";
 import "./Sidebar.scss";
 
 export default function Sidebar({ definirSidebarAberta }) {
@@ -65,6 +65,28 @@ export default function Sidebar({ definirSidebarAberta }) {
           >
             <Users size={20} />
             {!colapsado && <span>Funcionários</span>}
+          </NavLink>
+
+          <NavLink
+            to="/medicos-admin"
+            className={({ isActive }) =>
+              `link-navegacao ${isActive ? "link-ativo" : ""}`
+            }
+            onClick={() => setMenuAberto(false)}
+          >
+            <Stethoscope size={20} />
+            {!colapsado && <span>Médicos</span>}
+          </NavLink>
+
+          <NavLink
+            to="/cadastro-usuarios"
+            className={({ isActive }) =>
+              `link-navegacao ${isActive ? "link-ativo" : ""}`
+            }
+            onClick={() => setMenuAberto(false)}
+          >
+            <UserPlus size={20} />
+            {!colapsado && <span>Cadastro de Usuários</span>}
           </NavLink>
 
           <NavLink

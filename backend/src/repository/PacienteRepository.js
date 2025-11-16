@@ -93,3 +93,39 @@ export async function deletarPaciente(id) {
   const [info] = await connection.query(comando, [id]);
   return info.affectedRows;
 }
+
+export async function buscarPacientePorEmail(email) {
+  const comando = `
+    SELECT * FROM pacientes
+    WHERE email = ?;
+  `;
+  const [linhas] = await connection.query(comando, [email]);
+  return linhas[0];
+}
+
+export async function contarConsultasAgendadas(pacienteId) {
+  const [resultado] = await connection.query(
+    `SELECT COUNT(*) as total FROM consultas 
+     WHERE paciente_id = ? AND status IN ('Agendada', 'Confirmada')`,
+    [pacienteId]
+  );
+  return resultado[0].total;
+}
+
+export async function contarConsultasRealizadas(pacienteId) {
+  const [resultado] = await connection.query(
+    `SELECT COUNT(*) as total FROM consultas 
+     WHERE paciente_id = ? AND status = 'Concluída'`,
+    [pacienteId]
+  );
+  return resultado[0].total;
+}
+
+export async function contarPrescricoesAtivas(pacienteId) {
+  const [resultado] = await connection.query(
+    `SELECT COUNT(*) as total FROM prescricoes 
+     WHERE paciente_id = ? AND (fim IS NULL OR fim >= CURDATE())`,
+    [pacienteId]
+  );
+  return resultado[0].total;
+}

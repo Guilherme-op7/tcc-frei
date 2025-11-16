@@ -37,7 +37,6 @@ export default function CadastrarPacienteModal({ onClose, onCadastrado }) {
         tipo_sanguineo: form.tipo_sanguineo || null,
         alergias: form.alergias || null,
         contato_emergencia: form.contato_emergencia || null,
-        data_cadastro: new Date().toISOString().split("T")[0],
       };
       await api.post("/pacientes", payload);
       toast.success("Paciente cadastrado com sucesso!");

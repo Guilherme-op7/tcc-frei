@@ -1,0 +1,97 @@
+.pagina-cadastro-usuarios {
+  min-height: 100vh;
+  background: #f5f7fa;
+
+  .conteudo-principal {
+    margin-left: 96px;
+    transition: margin-left 0.3s ease-in-out;
+
+    &.menu-aberto {
+      margin-left: 256px;
+    }
+  }
+
+  .area-principal {
+    padding: 24px;
+  }
+
+  .cabecalho-secao {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1e40af;
+      margin: 0 0 8px 0;
+    }
+
+    p {
+      color: #64748b;
+      margin: 0;
+    }
+  }
+
+  .formulario-cadastro {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+  }
+
+  .form-cadastro {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    label {
+      font-weight: 500;
+      color: #334155;
+      font-size: 14px;
+    }
+
+    .form-input,
+    .form-select {
+      padding: 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #2563eb;
+      }
+    }
+  }
+
+  .btn-cadastrar {
+    padding: 12px 24px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+      background: #1e40af;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+}
+

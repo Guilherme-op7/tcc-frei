@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff, ArrowLeft, User, Mail, Lock, UserCheck, CheckCircle2 } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, User, Mail, Lock } from "lucide-react";
 import { toast } from "sonner";
 import api from "../../api";
 import logo from "../../assets/images/logo.png";
@@ -13,7 +13,7 @@ export default function CadastroPage() {
     email: "",
     senha: "",
     confirmarSenha: "",
-    tipo_usuario: "paciente",
+    tipo_usuario: "paciente", // Fixo como paciente
   });
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
@@ -135,23 +135,6 @@ export default function CadastroPage() {
               />
             </div>
 
-            <div className="form-group">
-              <label className="form-label">
-                <UserCheck size={18} className="label-icon" />
-                Tipo de Usuário *
-              </label>
-              <select
-                name="tipo_usuario"
-                value={form.tipo_usuario}
-                onChange={handleChange}
-                required
-                className="form-select"
-              >
-                <option value="paciente">Paciente</option>
-                <option value="medico">Médico</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
 
             <div className="form-group">
               <label className="form-label">

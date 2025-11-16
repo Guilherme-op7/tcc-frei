@@ -1,0 +1,54 @@
+.info-medico {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    color: #1e293b;
+    font-weight: 600;
+  }
+
+  .email {
+    color: #64748b;
+    font-size: 12px;
+  }
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+
+  button {
+    padding: 6px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  .btn-editar {
+    background: #dbeafe;
+    color: #2563eb;
+
+    &:hover {
+      background: #bfdbfe;
+    }
+  }
+
+  .btn-deletar {
+    background: #fee2e2;
+    color: #dc2626;
+
+    &:hover {
+      background: #fecaca;
+    }
+  }
+}
+

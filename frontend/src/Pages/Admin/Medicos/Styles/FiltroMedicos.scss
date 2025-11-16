@@ -1,0 +1,27 @@
+.filtro-medicos {
+  margin-bottom: 24px;
+
+  .campo-busca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #e0e7ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      color: #1e293b;
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+    }
+  }
+}
+

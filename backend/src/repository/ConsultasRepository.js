@@ -5,7 +5,7 @@ export async function ListarConsultas() {
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.medico_id,
+      consultas.funcionario_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
@@ -14,7 +14,7 @@ export async function ListarConsultas() {
       medicos.nome AS nome_medico
     FROM consultas
     JOIN pacientes ON consultas.paciente_id = pacientes.id
-    JOIN medicos ON consultas.medico_id = medicos.id
+    JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
     ORDER BY consultas.data_hora DESC
   `);
 
@@ -26,14 +26,15 @@ export async function BuscarConsultaPorPaciente(pacienteId) {
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.medico_id,
+      consultas.funcionario_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
       consultas.status,
       medicos.nome AS nome_medico
     FROM consultas
-    JOIN medicos ON consultas.medico_id = medicos.id
+    JOIN funcionarios ON consultas.funcionario_id = funcionarios.id
+    JOIN medicos ON medicos.id_funcionario = funcionarios.id
     WHERE consultas.paciente_id = ?
     ORDER BY consultas.data_hora DESC
   `, [pacienteId]);
@@ -46,7 +47,7 @@ export async function BuscarConsultaPorMedico(medicoId) {
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.medico_id,
+      consultas.funcionario_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
@@ -54,9 +55,79 @@ export async function BuscarConsultaPorMedico(medicoId) {
       pacientes.nome AS nome_paciente
     FROM consultas
     JOIN pacientes ON consultas.paciente_id = pacientes.id
-    WHERE consultas.medico_id = ?
+    JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
+    WHERE medicos.id = ?
     ORDER BY consultas.data_hora DESC
   `, [medicoId]);
+
+  return consultas;
+}
+
+export async function BuscarProximasConsultasPaciente(pacienteId) {
+  const [consultas] = await connection.query(`
+    SELECT 
+      consultas.id,
+      consultas.data_hora,
+      consultas.tipo_consulta,
+      consultas.unidade,
+      consultas.status,
+      medicos.nome AS nome_medico,
+      e.nome AS especialidade
+    FROM consultas
+    JOIN funcionarios ON consultas.funcionario_id = funcionarios.id
+    JOIN medicos ON medicos.id_funcionario = funcionarios.id
+    LEFT JOIN especialidades e ON medicos.id_especialidade = e.id
+    WHERE consultas.paciente_id = ? 
+      AND consultas.data_hora >= NOW()
+      AND consultas.status IN ('Agendada', 'Confirmada')
+    ORDER BY consultas.data_hora ASC
+    LIMIT 10
+  `, [pacienteId]);
+
+  return consultas;
+}
+
+export async function BuscarProximasConsultasMedico(medicoId) {
+  const [consultas] = await connection.query(`
+    SELECT 
+      consultas.id,
+      consultas.data_hora,
+      consultas.tipo_consulta,
+      consultas.unidade,
+      consultas.status,
+      pacientes.nome AS nome_paciente
+    FROM consultas
+    JOIN pacientes ON consultas.paciente_id = pacientes.id
+    JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
+    WHERE medicos.id = ? 
+      AND consultas.data_hora >= NOW()
+      AND consultas.status IN ('Agendada', 'Confirmada')
+    ORDER BY consultas.data_hora ASC
+    LIMIT 10
+  `, [medicoId]);
+
+  return consultas;
+}
+
+export async function BuscarHistoricoConsultasPaciente(pacienteId) {
+  const [consultas] = await connection.query(`
+    SELECT 
+      consultas.id,
+      consultas.data_hora,
+      consultas.tipo_consulta,
+      consultas.unidade,
+      consultas.status,
+      medicos.nome AS nome_medico,
+      e.nome AS especialidade
+    FROM consultas
+    JOIN funcionarios ON consultas.funcionario_id = funcionarios.id
+    JOIN medicos ON medicos.id_funcionario = funcionarios.id
+    LEFT JOIN especialidades e ON medicos.id_especialidade = e.id
+    WHERE consultas.paciente_id = ? 
+      AND consultas.status = 'Concluída'
+    ORDER BY consultas.data_hora DESC
+    LIMIT 10
+  `, [pacienteId]);
 
   return consultas;
 }
@@ -66,7 +137,7 @@ export async function BuscarConsultaPorUnidade(unidade) {
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.medico_id,
+      consultas.funcionario_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
@@ -75,7 +146,7 @@ export async function BuscarConsultaPorUnidade(unidade) {
       medicos.nome AS nome_medico
     FROM consultas
     INNER JOIN pacientes ON consultas.paciente_id = pacientes.id
-    INNER JOIN medicos ON consultas.medico_id = medicos.id
+    INNER JOIN medicos ON medicos.id_funcionario = consultas.funcionario_id
     WHERE consultas.unidade LIKE ?
     ORDER BY consultas.data_hora DESC
   `, [`%${unidade}%`]);
@@ -91,10 +162,22 @@ export async function CriarConsulta({ paciente_id, medico_id, data_hora, tipo_co
     statusNormalizado = 'Concluída';
   }
 
+  // Buscar funcionario_id do médico
+  const [medicoResult] = await connection.query(
+    `SELECT id_funcionario FROM medicos WHERE id = ?`,
+    [medico_id]
+  );
+
+  if (!medicoResult || medicoResult.length === 0) {
+    throw new Error('Médico não encontrado');
+  }
+
+  const funcionario_id = medicoResult[0].id_funcionario;
+
   const [resultado] = await connection.query(`
-    INSERT INTO consultas (paciente_id, medico_id, data_hora, tipo_consulta, unidade, status)
+    INSERT INTO consultas (paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, status)
     VALUES (?, ?, ?, ?, ?, ?)
-  `, [paciente_id, medico_id, data_hora, tipo_consulta, unidade, statusNormalizado]);
+  `, [paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, statusNormalizado]);
 
   return { id: resultado.insertId, paciente_id, medico_id, data_hora, tipo_consulta, unidade, status: statusNormalizado };
 }
@@ -108,13 +191,25 @@ export async function AtualizarConsulta(idConsulta, dadosConsulta) {
     statusNormalizado = 'Concluída';
   }
 
+  // Buscar funcionario_id do médico
+  let funcionario_id = null;
+  if (medico_id) {
+    const [medicoResult] = await connection.query(
+      `SELECT id_funcionario FROM medicos WHERE id = ?`,
+      [medico_id]
+    );
+    if (medicoResult && medicoResult.length > 0) {
+      funcionario_id = medicoResult[0].id_funcionario;
+    }
+  }
+
   const [resultado] = await connection.query(`
     UPDATE consultas
-    SET paciente_id = ?, medico_id = ?, data_hora = ?, tipo_consulta = ?, unidade = ?, status = ?
+    SET paciente_id = ?, funcionario_id = ?, data_hora = ?, tipo_consulta = ?, unidade = ?, status = ?
     WHERE id = ?
   `, [
     paciente_id,
-    medico_id,
+    funcionario_id,
     data_hora,
     tipo_consulta,
     unidade,

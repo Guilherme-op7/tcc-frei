@@ -36,7 +36,7 @@ export default function CadastrarFuncionarioModal({ onClose, onCadastrado }) {
         cargo: form.cargo || null,
         salario: form.salario ? parseFloat(form.salario) : null,
         funcionario_ativo: Number(form.funcionario_ativo),
-        date: form.data_admissao || null,
+        data_admissao: form.data_admissao || null,
       };
       await api.post("/funcionarios", payload);
       toast.success("Funcionário cadastrado com sucesso!");

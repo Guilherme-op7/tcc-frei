@@ -12,6 +12,8 @@ import PacientesPag from "./Pages/Pacientes/Pacentes";
 import ConsultasPage from "./Pages/Admin/Consultas/Components/App";
 import MedicosPage from "./Pages/Medicos/Medicos";
 import PaginaLanding from "./Pages/Landing/LandingPage";
+import CadastroUsuariosPage from "./Pages/Admin/CadastroUsuarios/Components/CadastroUsuariosPage";
+import MedicosAdminPage from "./Pages/Admin/Medicos/Components/MedicosPage";
 
 export default function Navegacao() {
   return (
@@ -46,6 +48,18 @@ export default function Navegacao() {
         <Route path="/funcionarios" element={
           <RotaProtegida>
             <FuncionariosPage role="admin" />
+          </RotaProtegida>
+        } />
+
+        <Route path="/medicos-admin" element={
+          <RotaProtegida role="admin">
+            <MedicosAdminPage />
+          </RotaProtegida>
+        } />
+
+        <Route path="/cadastro-usuarios" element={
+          <RotaProtegida role="admin">
+            <CadastroUsuariosPage />
           </RotaProtegida>
         } />
 
