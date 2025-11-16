@@ -18,13 +18,9 @@ export async function criarMedicoService(dados) {
     if (!funcionario)
         throw new Error("Funcionário não encontrado.");
 
-    // Montando médico baseado NO funcionário
+    // Montando médico com apenas os campos da tabela medicos
     const medico = {
         id_funcionario: funcionario.id,
-        nome: funcionario.nome,
-        email: funcionario.email,
-        telefone: funcionario.telefone,
-        salario: funcionario.salario,
         crm: dados.crm,
         id_especialidade: dados.id_especialidade || null
     };

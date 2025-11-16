@@ -28,16 +28,17 @@ export default function EditarMedicoModal({ medico, onClose, onAtualizado }) {
 
     if (medico) {
       setForm({
-        id_funcionario: medico.id_funcionario,
+        id_funcionario: medico.id_funcionario || medico.funcionario_id,
         crm: medico.crm,
         id_especialidade: medico.id_especialidade || "",
       });
 
+      // Usar campos do funcionario que vêm do JOIN
       setFuncionarioSelecionado({
-        nome: medico.nome,
-        email: medico.email,
-        telefone: medico.telefone,
-        salario: medico.salario,
+        nome: medico.nome || medico.funcionario_nome,
+        email: medico.email || medico.funcionario_email,
+        telefone: medico.telefone || medico.funcionario_telefone,
+        salario: medico.salario || medico.funcionario_salario,
       });
     }
 

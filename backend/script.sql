@@ -208,15 +208,15 @@ INSERT INTO especialidades (nome, valor, cor) VALUES
 ('Reumatologia', 770, '#6C5CE7'),
 ('Oncologia', 950, '#E17055');
 
-INSERT INTO medicos (id_funcionario, nome, email, telefone, salario, crm, id_especialidade) VALUES
-(1, 'Dr. João Silva', 'joao.silva@saude.com', '(11) 98765-4321', 15000.00, 'CRM/SP 123456', 8),
-(2, 'Dra. Maria Santos', 'maria.santos@saude.com', '(11) 98765-4322', 18000.00, 'CRM/SP 234567', 1),
-(3, 'Dr. Pedro Oliveira', 'pedro.oliveira@saude.com', '(11) 98765-4323', 16000.00, 'CRM/SP 345678', 2),
-(4, 'Dra. Ana Costa', 'ana.costa@saude.com', '(11) 98765-4324', 17000.00, 'CRM/SP 456789', 3),
-(5, 'Dr. Carlos Mendes', 'carlos.mendes@saude.com', '(11) 98765-4325', 19000.00, 'CRM/SP 567890', 4),
-(6, 'Dra. Juliana Lima', 'juliana.lima@saude.com', '(11) 98765-4326', 15500.00, 'CRM/SP 678901', 5),
-(7, 'Dr. Roberto Alves', 'roberto.alves@saude.com', '(11) 98765-4327', 16500.00, 'CRM/SP 789012', 6),
-(8, 'Dra. Fernanda Rocha', 'fernanda.rocha@saude.com', '(11) 98765-4328', 17500.00, 'CRM/SP 890123', 7);
+INSERT INTO medicos (id_funcionario, crm, id_especialidade) VALUES
+(1, 'CRM/SP 123456', 8),
+(2, 'CRM/SP 234567', 1),
+(3, 'CRM/SP 345678', 2),
+(4, 'CRM/SP 456789', 3),
+(5, 'CRM/SP 567890', 4),
+(6, 'CRM/SP 678901', 5),
+(7, 'CRM/SP 789012', 6),
+(8, 'CRM/SP 890123', 7);
 
 INSERT INTO pacientes (nome, cpf, cartao_sus, data_nascimento, telefone, email, endereco, tipo_sanguineo, alergias, contato_emergencia, status) VALUES
 ('José Santos Silva', '111.222.333-44', '123456789012345', '1965-03-15', '(11) 91234-5678', 'jose.santos@email.com', 'Rua das Flores, 123 - São Paulo/SP', 'O+', 'Nenhuma', '(11) 91234-5679', 'ativo'),

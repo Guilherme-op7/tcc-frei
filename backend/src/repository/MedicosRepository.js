@@ -71,9 +71,12 @@ export async function BuscarMedicoPorEmail(email) {
             m.crm,
             m.id_especialidade,
             e.nome AS nome_especialidade,
-
+            
+            f.id AS funcionario_id,
             f.nome AS funcionario_nome,
-            f.email AS funcionario_email
+            f.email AS funcionario_email,
+            f.telefone AS funcionario_telefone,
+            f.salario AS funcionario_salario
 
          FROM medicos m
          INNER JOIN funcionarios f ON f.id = m.id_funcionario

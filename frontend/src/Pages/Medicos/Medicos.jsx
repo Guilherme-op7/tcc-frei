@@ -95,12 +95,12 @@ export default function MedicosPage() {
               <i className="fa-solid fa-user-doctor"></i> Meu Perfil médico
             </a>
             <div className="dados">
-              <p><strong>Nome</strong><br />{medico.nome || "-"}</p>
+              <p><strong>Nome</strong><br />{medico.funcionario_nome || medico.nome || "-"}</p>
               <p><strong>CRM</strong><br />{medico.crm || "-"}</p>
               <p><strong>UBS</strong><br />-</p>
               <p><strong>Especialidade</strong><br />{medico.nome_especialidade || "-"}</p>
             </div>
-            <span className="email">{medico.email || "-"}</span>
+            <span className="email">{medico.funcionario_email || medico.email || "-"}</span>
           </div>
         </section>
 

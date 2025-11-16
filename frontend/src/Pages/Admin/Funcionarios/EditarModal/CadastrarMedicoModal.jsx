@@ -7,10 +7,6 @@ import "./EditarFuncionariosModal.scss";
 export default function CadastrarMedicoModal({ onClose, onCadastrado }) {
   const [form, setForm] = useState({
     id_funcionario: "",
-    nome: "",
-    email: "",
-    telefone: "",
-    salario: "",
     crm: "",
     id_especialidade: "",
   });
@@ -55,10 +51,6 @@ export default function CadastrarMedicoModal({ onClose, onCadastrado }) {
     try {
       const payload = {
         id_funcionario: form.id_funcionario ? parseInt(form.id_funcionario) : null,
-        nome: form.nome,
-        email: form.email,
-        telefone: form.telefone || null,
-        salario: form.salario ? parseFloat(form.salario) : null,
         crm: form.crm,
         id_especialidade: form.id_especialidade ? parseInt(form.id_especialidade) : null,
       };
@@ -107,39 +99,6 @@ export default function CadastrarMedicoModal({ onClose, onCadastrado }) {
               </option>
             ))}
           </select>
-
-          <label>Nome *</label>
-          <input
-            name="nome"
-            value={form.nome}
-            onChange={handleChange}
-            required
-          />
-
-          <label>Email *</label>
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-
-          <label>Telefone</label>
-          <input
-            name="telefone"
-            value={form.telefone}
-            onChange={handleChange}
-          />
-
-          <label>Salário</label>
-          <input
-            type="number"
-            step="0.01"
-            name="salario"
-            value={form.salario}
-            onChange={handleChange}
-          />
 
           <label>CRM *</label>
           <input
