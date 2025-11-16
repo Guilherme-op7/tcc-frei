@@ -6,7 +6,7 @@ import { criarMedicoService, listarMedicosService,   buscarMedicoPorIdService,  
 const autenticador = getAuthentication();
 const endpoints = Router();
 
-endpoints.get("/medicos", async (req, res) => {
+endpoints.get("/medicos", autenticador, async (req, res) => {
     try {
         let resposta = await listarMedicosService();
         res.status(200).send(resposta);

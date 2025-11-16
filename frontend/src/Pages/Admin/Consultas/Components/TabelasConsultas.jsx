@@ -2,7 +2,7 @@ import { Calendar, Clock, User, MapPin, Edit, Trash2 } from "lucide-react";
 import "../Styles/TabelasConsultas.scss";
 
 export default function TabelaConsultas({ consultas, aoDeletar, aoEditar }) {
-  const classeStatus = (status) => `status status-${status.toLowerCase()}`;
+  const classeStatus = (status) => `status status-${(status || "").toLowerCase()}`;
 
   if (!consultas || consultas.length === 0) {
     return (
@@ -30,36 +30,36 @@ export default function TabelaConsultas({ consultas, aoDeletar, aoEditar }) {
         </thead>
         <tbody>
           {consultas.map((c) => {
-            const data = new Date(c.data_hora);
-            const dataFormatada = data.toLocaleDateString("pt-BR");
-            const horaFormatada = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+            const dataObj = c?.data_hora ? new Date(c.data_hora) : null;
+            const dataFormatada = dataObj && !isNaN(dataObj.getTime()) ? dataObj.toLocaleDateString("pt-BR") : "-";
+            const horaFormatada = dataObj && !isNaN(dataObj.getTime()) ? dataObj.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : "-";
 
             return (
               <tr key={c.id}>
                 <td>
                   <div className="paciente-cell">
-                    <User size={16} color="#2563eb" />
-                    {c.nome_paciente}
+                    <User size={16} />
+                    {c?.nome_paciente || "-"}
                   </div>
                 </td>
-                <td>{c.nome_funcionario}</td>
+                <td>{c?.nome_medico || "-"}</td>
                 <td>
                   <div className="data-cell">
-                    <Calendar size={14} color="#9ca3af" />
+                    <Calendar size={14} />
                     <span>{dataFormatada}</span>
-                    <Clock size={14} color="#9ca3af" />
+                    <Clock size={14} />
                     <span>{horaFormatada}</span>
                   </div>
                 </td>
-                <td>{c.tipo_consulta}</td>
+                <td>{c?.tipo_consulta || "-"}</td>
                 <td>
                   <div className="unidade-cell">
-                    <MapPin size={14} color="#9ca3af" />
-                    <span>{c.unidade}</span>
+                    <MapPin size={14} />
+                    <span>{c?.unidade || "-"}</span>
                   </div>
                 </td>
                 <td>
-                  <span className={classeStatus(c.status)}>{c.status.replace("_", " ")}</span>
+                  <span className={classeStatus(c?.status)}>{(c?.status || "-").replace("_", " ")}</span>
                 </td>
                 <td className="acoes">
                   <button onClick={() => aoEditar(c)}><Edit size={16} /></button>

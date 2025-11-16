@@ -69,11 +69,16 @@ export default function CadastroPage() {
       setTimeout(() => {
         navigate("/login");
       }, 1500);
-    } catch (erro) {
+
+    } 
+    
+    catch (erro) {
       console.error("Erro ao cadastrar:", erro);
       const mensagem = erro.response?.data?.erro || erro.message || "Erro ao criar conta. Tente novamente.";
       toast.error(mensagem);
-    } finally {
+    } 
+    
+    finally {
       setLoading(false);
     }
   }

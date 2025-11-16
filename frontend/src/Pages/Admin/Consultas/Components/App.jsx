@@ -26,17 +26,16 @@ export default function PaginaConsultas() {
       setCarregando(true);
       let { data } = await api.get("/consultas");
       setConsultas(data);
+      setErro(null);
     } 
-    
     catch (err) {
       console.error(err);
       setErro("Não foi possível carregar as consultas.");
     } 
-    
     finally {
       setCarregando(false);
     }
-  };
+  }
 
   useEffect(() => {
     carregarConsultas();
@@ -50,7 +49,6 @@ export default function PaginaConsultas() {
       toast.success("Consulta deletada com sucesso!");
       carregarConsultas();
     } 
-    
     catch (err) {
       console.error(err);
       const mensagem = err.response?.data?.erro || err.message || "Não foi possível deletar esta consulta.";
@@ -86,11 +84,16 @@ export default function PaginaConsultas() {
     }
   }
 
-  const consultasFiltradas = consultas.filter((c) =>
-    (c.nome_paciente.toLowerCase().includes(busca.toLowerCase()) ||
-     c.nome_funcionario.toLowerCase().includes(busca.toLowerCase())) &&
-    (statusFiltro === "todos" || c.status.toLowerCase() === statusFiltro.toLowerCase())
-  );
+  const consultasFiltradas = consultas.filter((c) => {
+    const nomePaciente = (c?.nome_paciente || "").toLowerCase();
+    const nomeMedico = (c?.nome_medico || "").toLowerCase();
+    const termo = busca.toLowerCase();
+
+    const bateBusca = nomePaciente.includes(termo) || nomeMedico.includes(termo);
+    const bateStatus = statusFiltro === "todos" || (c?.status || "").toLowerCase() === statusFiltro.toLowerCase();
+
+    return bateBusca && bateStatus;
+  });
 
   return (
     <div className="painel-geral">

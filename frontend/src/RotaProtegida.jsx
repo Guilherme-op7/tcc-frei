@@ -1,14 +1,15 @@
 import { Navigate } from "react-router-dom";
 
-function obterToken() {
-  return localStorage.getItem('token');
-}
-
-function RotaProtegida({ children }) {
-  const token = obterToken();
+function RotaProtegida({ children, role }) {
+  const token = localStorage.getItem("token");
+  const userRole = localStorage.getItem("role");
 
   if (!token) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role && role !== userRole) {
+    return <Navigate to="/login" replace />;
   }
 
   return children;

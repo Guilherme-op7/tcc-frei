@@ -49,7 +49,7 @@ endpoints.get('/pacientes/nome', autenticador, async (req, resp) => {
   }
 });
 
-endpoints.get('/pacientes/:id', async (req, resp) => {
+endpoints.get('/pacientes/:id', autenticador, async (req, resp) => {
   try {
     const id = req.params.id;
     const paciente = await buscarPacientePorId(id);

@@ -174,7 +174,10 @@ $cor-texto-secundario: #475569;
           flex-wrap: wrap;
 
           .botao-cta {
-            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 16px 28px;
             background: linear-gradient(135deg, $cor-primaria, $cor-accent);
             color: #fff;
             border-radius: 12px;

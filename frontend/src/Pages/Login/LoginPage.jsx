@@ -50,6 +50,7 @@ export default function Login() {
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("usuario", JSON.stringify(data.usuario));
+      localStorage.setItem("role", data.usuario.role); 
 
       toast.success("Login realizado com sucesso!");
       redirecionar(data.usuario.role);

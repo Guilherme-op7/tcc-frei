@@ -25,7 +25,7 @@ export default function FuncionariosPage() {
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null);
   const [modalEditarAberto, setModalEditarAberto] = useState(false);
 
-  const carregarFuncionarios = async () => {
+  async function carregarFuncionarios() {
     setLoading(true);
     try {
       const res = await api.get("/funcionarios");

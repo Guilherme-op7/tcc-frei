@@ -87,7 +87,8 @@ endpoints.put('/funcionarios/:id', autenticador, async (req, res) => {
         let id = req.params.id;
         let dados = req.body;
 
-        let resposta = await atualizarFuncionarioService(dados, id);
+        let resposta = await atualizarFuncionarioService(id, dados);
+
 
         res.status(201).send({
             mensagem: "Usuário alterado com sucesso!"

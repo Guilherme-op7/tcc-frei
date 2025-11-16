@@ -5,18 +5,19 @@ export async function ListarConsultas() {
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.funcionario_id,
+      consultas.medico_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
       consultas.status,
       pacientes.nome AS nome_paciente,
-      funcionarios.nome AS nome_funcionario
+      medicos.nome AS nome_medico
     FROM consultas
     JOIN pacientes ON consultas.paciente_id = pacientes.id
-    JOIN funcionarios ON consultas.funcionario_id = funcionarios.id
+    JOIN medicos ON consultas.medico_id = medicos.id
     ORDER BY consultas.data_hora DESC
   `);
+
   return consultas;
 }
 
@@ -25,26 +26,27 @@ export async function BuscarConsultaPorPaciente(pacienteId) {
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.funcionario_id,
+      consultas.medico_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
       consultas.status,
-      funcionarios.nome AS nome_funcionario
+      medicos.nome AS nome_medico
     FROM consultas
-    JOIN funcionarios ON consultas.funcionario_id = funcionarios.id
+    JOIN medicos ON consultas.medico_id = medicos.id
     WHERE consultas.paciente_id = ?
     ORDER BY consultas.data_hora DESC
   `, [pacienteId]);
+
   return consultas;
 }
 
-export async function BuscarConsultaPorFuncionario(funcionarioId) {
+export async function BuscarConsultaPorMedico(medicoId) {
   const [consultas] = await connection.query(`
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.funcionario_id,
+      consultas.medico_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
@@ -52,9 +54,10 @@ export async function BuscarConsultaPorFuncionario(funcionarioId) {
       pacientes.nome AS nome_paciente
     FROM consultas
     JOIN pacientes ON consultas.paciente_id = pacientes.id
-    WHERE consultas.funcionario_id = ?
+    WHERE consultas.medico_id = ?
     ORDER BY consultas.data_hora DESC
-  `, [funcionarioId]);
+  `, [medicoId]);
+
   return consultas;
 }
 
@@ -63,49 +66,61 @@ export async function BuscarConsultaPorUnidade(unidade) {
     SELECT 
       consultas.id,
       consultas.paciente_id,
-      consultas.funcionario_id,
+      consultas.medico_id,
       consultas.data_hora,
       consultas.tipo_consulta,
       consultas.unidade,
       consultas.status,
       pacientes.nome AS nome_paciente,
-      funcionarios.nome AS nome_funcionario
+      medicos.nome AS nome_medico
     FROM consultas
     INNER JOIN pacientes ON consultas.paciente_id = pacientes.id
-    INNER JOIN funcionarios ON consultas.funcionario_id = funcionarios.id
+    INNER JOIN medicos ON consultas.medico_id = medicos.id
     WHERE consultas.unidade LIKE ?
     ORDER BY consultas.data_hora DESC
   `, [`%${unidade}%`]);
+
   return consultas;
 }
 
-export async function CriarConsulta(dadosConsulta) {
-  const { paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, status } = dadosConsulta;
-  
+export async function CriarConsulta({ paciente_id, medico_id, data_hora, tipo_consulta, unidade, status }) {
+
   let statusNormalizado = status || 'Agendada';
-  if (statusNormalizado.toLowerCase() === 'agendada') statusNormalizado = 'Agendada';
-  if (statusNormalizado.toLowerCase() === 'realizada' || statusNormalizado.toLowerCase() === 'concluída') statusNormalizado = 'Concluída';
+
+  if (['realizada', 'concluída', 'concluida'].includes(statusNormalizado?.toLowerCase())) {
+    statusNormalizado = 'Concluída';
+  }
 
   const [resultado] = await connection.query(`
-    INSERT INTO consultas (paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, status)
+    INSERT INTO consultas (paciente_id, medico_id, data_hora, tipo_consulta, unidade, status)
     VALUES (?, ?, ?, ?, ?, ?)
-  `, [paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, statusNormalizado]);
+  `, [paciente_id, medico_id, data_hora, tipo_consulta, unidade, statusNormalizado]);
 
-  return { id: resultado.insertId, ...dadosConsulta };
+  return { id: resultado.insertId, paciente_id, medico_id, data_hora, tipo_consulta, unidade, status: statusNormalizado };
 }
 
 export async function AtualizarConsulta(idConsulta, dadosConsulta) {
-  const { paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, status } = dadosConsulta;
-  
+  const { paciente_id, medico_id, data_hora, tipo_consulta, unidade, status } = dadosConsulta;
+
   let statusNormalizado = status || 'Agendada';
-  if (statusNormalizado.toLowerCase() === 'agendada') statusNormalizado = 'Agendada';
-  if (statusNormalizado.toLowerCase() === 'realizada' || statusNormalizado.toLowerCase() === 'concluída') statusNormalizado = 'Concluída';
+
+  if (['realizada', 'concluída', 'concluida'].includes(statusNormalizado?.toLowerCase())) {
+    statusNormalizado = 'Concluída';
+  }
 
   const [resultado] = await connection.query(`
     UPDATE consultas
-    SET paciente_id = ?, funcionario_id = ?, data_hora = ?, tipo_consulta = ?, unidade = ?, status = ?
+    SET paciente_id = ?, medico_id = ?, data_hora = ?, tipo_consulta = ?, unidade = ?, status = ?
     WHERE id = ?
-  `, [paciente_id, funcionario_id, data_hora, tipo_consulta, unidade, statusNormalizado, idConsulta]);
+  `, [
+    paciente_id,
+    medico_id,
+    data_hora,
+    tipo_consulta,
+    unidade,
+    statusNormalizado,
+    idConsulta
+  ]);
 
   return resultado.affectedRows > 0;
 }

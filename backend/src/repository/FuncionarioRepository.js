@@ -46,24 +46,26 @@ export async function ListarFuncionariosCPF(cpf) {
 
 export async function AtualizarFuncionarios(NovosDados, id) {
     let [resultados] =
-        await connection.query(
-            `UPDATE funcionarios
-            SET nome = ?,
-            cpf = ?,
-            departamento = ?,
-            salario = ?,
-            cargo = ?,
-            email = ?,
-            telefone = ?,
-            endereco = ?,
-            funcionario_ativo = ?,
-            data_admissao = ?
-            WHERE id = ?`,
-            [NovosDados.nome, NovosDados.cpf, NovosDados.departamento, NovosDados.salario,
-            NovosDados.cargo, NovosDados.email, NovosDados.telefone, NovosDados.endereco || null,
-            NovosDados.funcionario_ativo, NovosDados.data_admissao, id
-            ]
-        )
+await connection.query(
+  `UPDATE funcionarios
+   SET nome = ?, cpf = ?, departamento = ?, salario = ?, cargo = ?, email = ?,
+   telefone = ?, endereco = ?, funcionario_ativo = ?, data_admissao = ?
+   WHERE id = ?`,
+  [
+    NovosDados.nome,
+    NovosDados.cpf,
+    NovosDados.departamento,
+    NovosDados.salario,
+    NovosDados.cargo,
+    NovosDados.email,
+    NovosDados.telefone,
+    NovosDados.endereco || null,
+    NovosDados.funcionario_ativo,
+    NovosDados.data_admissao || null,
+    id,
+  ]
+);
+
 
     return resultados.affectedRows;
 }

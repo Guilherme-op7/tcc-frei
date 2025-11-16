@@ -7,14 +7,14 @@ import "../Styles/ModalConsulta.scss";
 export default function ModalConsulta({ consulta, onClose, onSalvar }) {
   const [form, setForm] = useState({
     paciente_id: "",
-    funcionario_id: "",
+    medico_id: "",
     data_hora: "",
     tipo_consulta: "",
     unidade: "",
     status: "Agendada",
   });
   const [pacientes, setPacientes] = useState([]);
-  const [funcionarios, setFuncionarios] = useState([]);
+  const [medicos, setMedicos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const isEdicao = !!consulta;
@@ -22,13 +22,14 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [resPacientes, resFuncionarios] = await Promise.all([
+        const [resPacientes, resMedicos] = await Promise.all([
           api.get("/pacientes"),
-          api.get("/funcionarios"),
+          api.get("/medicos"),
         ]);
 
         setPacientes(resPacientes.data);
-        setFuncionarios(resFuncionarios.data.resposta || resFuncionarios.data);
+        // backend pode retornar { resposta: [...] } ou array diretamente
+        setMedicos(resMedicos.data.resposta || resMedicos.data);
 
         if (consulta) {
           let dataHoraFormatada = "";
@@ -36,6 +37,7 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
             try {
               const dataHora = new Date(consulta.data_hora);
               if (!isNaN(dataHora.getTime())) {
+                // ISO local (YYYY-MM-DDTHH:MM)
                 dataHoraFormatada = dataHora.toISOString().slice(0, 16);
               }
             } catch (e) {
@@ -43,12 +45,12 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
             }
           }
           setForm({
-            paciente_id: consulta.paciente_id || "",
-            funcionario_id: consulta.funcionario_id || "",
+            paciente_id: consulta.paciente_id ?? "",
+            medico_id: consulta.medico_id ?? "",
             data_hora: dataHoraFormatada,
-            tipo_consulta: consulta.tipo_consulta || "",
-            unidade: consulta.unidade || "",
-            status: consulta.status || "Agendada",
+            tipo_consulta: consulta.tipo_consulta ?? "",
+            unidade: consulta.unidade ?? "",
+            status: consulta.status ?? "Agendada",
           });
         }
       } catch (err) {
@@ -76,7 +78,7 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
       
       const payload = {
         paciente_id: Number(form.paciente_id),
-        funcionario_id: Number(form.funcionario_id),
+        medico_id: Number(form.medico_id),
         data_hora: dataHora,
         tipo_consulta: form.tipo_consulta,
         unidade: form.unidade,
@@ -86,6 +88,7 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
       onClose();
     } catch (erro) {
       console.error("Erro ao salvar consulta:", erro);
+      toast.error("Erro ao salvar consulta. Veja o console.");
     }
   }
 
@@ -128,17 +131,17 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
           </div>
 
           <div className="form-group">
-            <label>Médico/Funcionário *</label>
+            <label>Médico *</label>
             <select
-              name="funcionario_id"
-              value={form.funcionario_id}
+              name="medico_id"
+              value={form.medico_id}
               onChange={handleChange}
               required
             >
-              <option value="">Selecione um médico/funcionário</option>
-              {funcionarios.map((f) => (
-                <option key={f.id} value={f.id}>
-                  {f.nome} - {f.cargo || f.departamento || ""}
+              <option value="">Selecione um médico</option>
+              {medicos.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nome} {m.cargo ? `- ${m.cargo}` : m.departamento ? `- ${m.departamento}` : ""}
                 </option>
               ))}
             </select>
@@ -213,4 +216,3 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
     </div>
   );
 }
-

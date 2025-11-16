@@ -17,54 +17,58 @@ export default function Navegacao() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element= {
+        <Route path="/" element={
           <PaginaLanding />
         } />
 
-        <Route path="/medicospage" element={<MedicosPage />} />
+        <Route path="/medicospage" element={
+          <RotaProtegida role="medico" >
+
+            <MedicosPage />
+          </RotaProtegida>} />
 
         <Route path="/login" element={<LoginPage />} />
 
         <Route path="/cadastro" element={<CadastroPage />} />
 
         <Route path="/PacientesPage" element={
-          <RotaProtegida >
+          <RotaProtegida role="paciente">
 
             <PacientesPag />
           </RotaProtegida>} />
 
         <Route path="/dashboard" element={
-          <RotaProtegida>
+          <RotaProtegida role="admin">
             <Dashboard />
           </RotaProtegida>
         } />
 
         <Route path="/funcionarios" element={
           <RotaProtegida>
-            <FuncionariosPage />
+            <FuncionariosPage role="admin" />
           </RotaProtegida>
         } />
 
         <Route path="/pacientes" element={
           <RotaProtegida>
-            <PacientesPage />
+            <PacientesPage role="admin" />
           </RotaProtegida>
         } />
 
         <Route path="/medicamentos" element={
-          <RotaProtegida>
+          <RotaProtegida role="admin">
             <MedicamentosPage />
           </RotaProtegida>
         } />
 
         <Route path="/relatorios" element={
-          <RotaProtegida>
+          <RotaProtegida role="admin">
             <RelatoriosPage />
           </RotaProtegida>
         } />
 
         <Route path="/consultas" element={
-          <RotaProtegida>
+          <RotaProtegida role="admin">
             <ConsultasPage />
           </RotaProtegida>
         } />

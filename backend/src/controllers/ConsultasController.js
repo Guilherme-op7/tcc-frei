@@ -1,6 +1,14 @@
 import { Router } from "express";
 import { getAuthentication } from "../utils/jwt.js";
-import { AtualizarConsulta, BuscarConsultaPorFuncionario, BuscarConsultaPorPaciente, BuscarConsultaPorUnidade, CriarConsulta, DeletarConsulta, ListarConsultas } from "../repository/ConsultasRepository.js";
+import { 
+    AtualizarConsulta, 
+    BuscarConsultaPorMedico,
+    BuscarConsultaPorPaciente, 
+    BuscarConsultaPorUnidade, 
+    CriarConsulta, 
+    DeletarConsulta, 
+    ListarConsultas 
+} from "../repository/ConsultasRepository.js";
 
 const endpoints = Router();
 const autenticador = getAuthentication();
@@ -8,10 +16,8 @@ const autenticador = getAuthentication();
 endpoints.get('/consultas', autenticador, async (req, res) => {
     try {
         let resposta = await ListarConsultas();
-
         res.status(200).json(resposta);
     }
-
     catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -19,27 +25,19 @@ endpoints.get('/consultas', autenticador, async (req, res) => {
 
 endpoints.get('/consultas/paciente/:id', autenticador, async (req, res) => {
     try {
-        let id = req.params.id;
-
-        let resposta = await BuscarConsultaPorPaciente(id);
-
+        let resposta = await BuscarConsultaPorPaciente(req.params.id);
         res.status(200).json(resposta);
     }
-
     catch (error) {
         res.status(500).json({ erro: error.message });
     }
 });
 
-endpoints.get('/consultas/funcionario/:id', autenticador, async (req, res) => {
+endpoints.get('/consultas/medico/:id', autenticador, async (req, res) => {
     try {
-        let id = req.params.id;
-
-        let resposta = await BuscarConsultaPorFuncionario(id);
-
+        let resposta = await BuscarConsultaPorMedico(req.params.id);
         res.status(200).json(resposta);
     }
-
     catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -48,12 +46,9 @@ endpoints.get('/consultas/funcionario/:id', autenticador, async (req, res) => {
 endpoints.get('/consultas/unidade', autenticador, async (req, res) => {
     try {
         let unidade = req.query.nome;
-
         let resposta = await BuscarConsultaPorUnidade(unidade);
-
         res.status(200).json(resposta);
     }
-
     catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -61,13 +56,9 @@ endpoints.get('/consultas/unidade', autenticador, async (req, res) => {
 
 endpoints.post('/consultas', autenticador, async (req, res) => {
     try {
-        let dados = req.body;
-
-        let resposta = await CriarConsulta(dados);
-
+        let resposta = await CriarConsulta(req.body);
         res.status(201).json(resposta);
     }
-
     catch (error) {
         res.status(500).json({ erro: error.message });
     }
@@ -75,11 +66,7 @@ endpoints.post('/consultas', autenticador, async (req, res) => {
 
 endpoints.put('/consultas/:id', autenticador, async (req, res) => {
     try {
-        let id = req.params.id;
-        let dados = req.body;
-
-        let resposta = await AtualizarConsulta(id, dados);
-        
+        let resposta = await AtualizarConsulta(req.params.id, req.body);
         res.status(200).json(resposta);
     }
     catch (error) {
@@ -89,8 +76,7 @@ endpoints.put('/consultas/:id', autenticador, async (req, res) => {
 
 endpoints.delete('/consultas/:id', autenticador, async (req, res) => {
     try {
-        let id = req.params.id;
-        let resposta = await DeletarConsulta(id);
+        let resposta = await DeletarConsulta(req.params.id);
         res.status(200).json(resposta);
     }
     catch (error) {
