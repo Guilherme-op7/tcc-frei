@@ -97,7 +97,7 @@ export default function MedicosPage() {
             <div className="dados">
               <p><strong>Nome</strong><br />{medico.funcionario_nome || medico.nome || "-"}</p>
               <p><strong>CRM</strong><br />{medico.crm || "-"}</p>
-              <p><strong>UBS</strong><br />-</p>
+              <p><strong>UBS</strong><br />{medico.nome_unidade || "-"}</p>
               <p><strong>Especialidade</strong><br />{medico.nome_especialidade || "-"}</p>
             </div>
             <span className="email">{medico.funcionario_email || medico.email || "-"}</span>

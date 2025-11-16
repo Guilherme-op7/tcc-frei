@@ -9,22 +9,26 @@ export default function CadastrarMedicoModal({ onClose, onCadastrado }) {
     id_funcionario: "",
     crm: "",
     id_especialidade: "",
+    id_unidade: "",
   });
 
   const [funcionarios, setFuncionarios] = useState([]);
   const [especialidades, setEspecialidades] = useState([]);
+  const [unidades, setUnidades] = useState([]);
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null);
 
   useEffect(() => {
     async function carregarDados() {
       try {
-        const [resFuncionarios, resEspecialidades] = await Promise.all([
+        const [resFuncionarios, resEspecialidades, resUnidades] = await Promise.all([
           api.get("/funcionarios"),
           api.get("/especialidades"),
+          api.get("/ubs"),
         ]);
 
         setFuncionarios(resFuncionarios.data.resposta || []);
         setEspecialidades(resEspecialidades.data || []);
+        setUnidades(resUnidades.data || []);
       } catch (erro) {
         toast.error("Erro ao carregar dados.");
       }
@@ -51,6 +55,9 @@ export default function CadastrarMedicoModal({ onClose, onCadastrado }) {
         crm: form.crm,
         id_especialidade: form.id_especialidade
           ? Number(form.id_especialidade)
+          : null,
+        id_unidade: form.id_unidade
+          ? Number(form.id_unidade)
           : null,
       };
 
@@ -119,6 +126,20 @@ export default function CadastrarMedicoModal({ onClose, onCadastrado }) {
             {especialidades.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.nome}
+              </option>
+            ))}
+          </select>
+
+          <label>Unidade de Saúde (UBS)</label>
+          <select
+            name="id_unidade"
+            value={form.id_unidade}
+            onChange={handleChange}
+          >
+            <option value="">Selecione uma unidade</option>
+            {unidades.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.nome}
               </option>
             ))}
           </select>

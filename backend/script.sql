@@ -25,15 +25,25 @@ create table especialidades (
     cor varchar(10)
 );
 
+create table unidades_saude (
+    id int primary key auto_increment,
+    nome varchar(255) not null,
+    endereco varchar(255)
+);
+
 CREATE TABLE medicos (
     id INT PRIMARY KEY AUTO_INCREMENT,
     id_funcionario INT NOT NULL UNIQUE,
     crm VARCHAR(50) NOT NULL UNIQUE,
     id_especialidade INT,
+    id_unidade INT,
     FOREIGN KEY (id_funcionario) REFERENCES funcionarios(id)
         ON DELETE CASCADE 
         ON UPDATE CASCADE,
     FOREIGN KEY (id_especialidade) REFERENCES especialidades(id)
+        ON DELETE SET NULL 
+        ON UPDATE CASCADE,
+    FOREIGN KEY (id_unidade) REFERENCES unidades_saude(id)
         ON DELETE SET NULL 
         ON UPDATE CASCADE
 );
@@ -52,12 +62,6 @@ create table pacientes (
     alergias varchar(255),
     contato_emergencia varchar(100),
     status enum('ativo','inativo') default 'ativo'
-);
-
-create table unidades_saude (
-    id int primary key auto_increment,
-    nome varchar(255) not null,
-    endereco varchar(255)
 );
 
 create table consultas (

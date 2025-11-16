@@ -9,21 +9,25 @@ export default function EditarMedicoModal({ medico, onClose, onAtualizado }) {
     id_funcionario: "",
     crm: "",
     id_especialidade: "",
+    id_unidade: "",
   });
 
   const [funcionarios, setFuncionarios] = useState([]);
   const [especialidades, setEspecialidades] = useState([]);
+  const [unidades, setUnidades] = useState([]);
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState(null);
 
   useEffect(() => {
     async function carregar() {
-      const [resF, resE] = await Promise.all([
+      const [resF, resE, resU] = await Promise.all([
         api.get("/funcionarios"),
         api.get("/especialidades"),
+        api.get("/ubs"),
       ]);
 
       setFuncionarios(resF.data.resposta || []);
       setEspecialidades(resE.data || []);
+      setUnidades(resU.data || []);
     }
 
     if (medico) {
@@ -31,6 +35,7 @@ export default function EditarMedicoModal({ medico, onClose, onAtualizado }) {
         id_funcionario: medico.id_funcionario || medico.funcionario_id,
         crm: medico.crm,
         id_especialidade: medico.id_especialidade || "",
+        id_unidade: medico.id_unidade || "",
       });
 
       // Usar campos do funcionario que vêm do JOIN
@@ -64,6 +69,9 @@ export default function EditarMedicoModal({ medico, onClose, onAtualizado }) {
         crm: form.crm,
         id_especialidade: form.id_especialidade
           ? Number(form.id_especialidade)
+          : null,
+        id_unidade: form.id_unidade
+          ? Number(form.id_unidade)
           : null,
       };
 
@@ -131,6 +139,20 @@ export default function EditarMedicoModal({ medico, onClose, onAtualizado }) {
             {especialidades.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.nome}
+              </option>
+            ))}
+          </select>
+
+          <label>Unidade de Saúde (UBS)</label>
+          <select
+            name="id_unidade"
+            value={form.id_unidade}
+            onChange={handleChange}
+          >
+            <option value="">Selecione uma unidade</option>
+            {unidades.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.nome}
               </option>
             ))}
           </select>

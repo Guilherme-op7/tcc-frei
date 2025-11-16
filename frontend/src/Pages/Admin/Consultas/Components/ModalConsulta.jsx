@@ -145,7 +145,7 @@ export default function ModalConsulta({ consulta, onClose, onSalvar }) {
               <option value="">Selecione um médico</option>
               {medicos.map((m) => (
                 <option key={m.id} value={m.id}>
-                  {m.nome} {m.cargo ? `- ${m.cargo}` : m.departamento ? `- ${m.departamento}` : ""}
+                  {m.funcionario_nome || m.nome || "Médico"} {m.nome_especialidade ? `- ${m.nome_especialidade}` : ""} {m.crm ? `(${m.crm})` : ""}
                 </option>
               ))}
             </select>

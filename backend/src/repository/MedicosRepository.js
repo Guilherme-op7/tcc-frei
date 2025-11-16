@@ -5,12 +5,14 @@ export async function CadastrarMedico(dados) {
         `INSERT INTO medicos (
             id_funcionario, 
             crm, 
-            id_especialidade
-        ) VALUES (?, ?, ?)`,
+            id_especialidade,
+            id_unidade
+        ) VALUES (?, ?, ?, ?)`,
         [
             dados.id_funcionario,
             dados.crm,
-            dados.id_especialidade || null
+            dados.id_especialidade || null,
+            dados.id_unidade || null
         ]
     );
 
@@ -23,7 +25,9 @@ export async function ListarMedicos() {
             m.id,
             m.crm,
             m.id_especialidade,
+            m.id_unidade,
             e.nome AS nome_especialidade,
+            u.nome AS nome_unidade,
             
             f.id AS funcionario_id,
             f.nome AS funcionario_nome,
@@ -34,6 +38,7 @@ export async function ListarMedicos() {
          FROM medicos m
          INNER JOIN funcionarios f ON f.id = m.id_funcionario
          LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         LEFT JOIN unidades_saude u ON u.id = m.id_unidade
          ORDER BY f.nome ASC`
     );
 
@@ -46,7 +51,9 @@ export async function BuscarMedicoPorId(id) {
             m.id,
             m.crm,
             m.id_especialidade,
+            m.id_unidade,
             e.nome AS nome_especialidade,
+            u.nome AS nome_unidade,
             
             f.id AS funcionario_id,
             f.nome AS funcionario_nome,
@@ -57,6 +64,7 @@ export async function BuscarMedicoPorId(id) {
          FROM medicos m
          INNER JOIN funcionarios f ON f.id = m.id_funcionario
          LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         LEFT JOIN unidades_saude u ON u.id = m.id_unidade
          WHERE m.id = ?`,
         [id]
     );
@@ -70,7 +78,9 @@ export async function BuscarMedicoPorEmail(email) {
             m.id,
             m.crm,
             m.id_especialidade,
+            m.id_unidade,
             e.nome AS nome_especialidade,
+            u.nome AS nome_unidade,
             
             f.id AS funcionario_id,
             f.nome AS funcionario_nome,
@@ -81,6 +91,7 @@ export async function BuscarMedicoPorEmail(email) {
          FROM medicos m
          INNER JOIN funcionarios f ON f.id = m.id_funcionario
          LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         LEFT JOIN unidades_saude u ON u.id = m.id_unidade
          WHERE f.email = ?`,
         [email]
     );
@@ -93,12 +104,14 @@ export async function AtualizarMedico(dados, id) {
         `UPDATE medicos SET
             id_funcionario = ?,
             crm = ?,
-            id_especialidade = ?
+            id_especialidade = ?,
+            id_unidade = ?
          WHERE id = ?`,
         [
             dados.id_funcionario,
             dados.crm,
             dados.id_especialidade || null,
+            dados.id_unidade || null,
             id
         ]
     );
@@ -194,7 +207,9 @@ export async function BuscarMedicoPorNome(nome) {
             m.id,
             m.crm,
             m.id_especialidade,
+            m.id_unidade,
             e.nome AS nome_especialidade,
+            u.nome AS nome_unidade,
             
             f.id AS funcionario_id,
             f.nome AS funcionario_nome,
@@ -205,6 +220,7 @@ export async function BuscarMedicoPorNome(nome) {
          FROM medicos m
          INNER JOIN funcionarios f ON f.id = m.id_funcionario
          LEFT JOIN especialidades e ON e.id = m.id_especialidade
+         LEFT JOIN unidades_saude u ON u.id = m.id_unidade
          WHERE f.nome LIKE ?
          ORDER BY f.nome ASC`,
         [`%${nome}%`]
