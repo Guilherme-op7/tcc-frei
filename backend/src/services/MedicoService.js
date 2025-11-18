@@ -22,7 +22,8 @@ export async function criarMedicoService(dados) {
     const medico = {
         id_funcionario: funcionario.id,
         crm: dados.crm,
-        id_especialidade: dados.id_especialidade || null
+        id_especialidade: dados.id_especialidade || null,
+        id_unidade: dados.id_unidade || null
     };
 
     return await CadastrarMedico(medico);

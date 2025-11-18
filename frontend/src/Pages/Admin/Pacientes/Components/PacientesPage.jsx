@@ -50,10 +50,10 @@ export default function PacientesPage() {
     const termo = textoBusca.toLowerCase();
     return (
       termo === "" ||
-      paciente.nome.toLowerCase().includes(termo) ||
-      paciente.cpf.toLowerCase().includes(termo) ||
-      paciente.cartao_sus.toLowerCase().includes(termo) ||
-      paciente.email.toLowerCase().includes(termo)
+      (paciente.nome || "").toLowerCase().includes(termo) ||
+      (paciente.cpf || "").toLowerCase().includes(termo) ||
+      (paciente.cartao_sus || "").toLowerCase().includes(termo) ||
+      (paciente.email || "").toLowerCase().includes(termo)
     );
   });
 

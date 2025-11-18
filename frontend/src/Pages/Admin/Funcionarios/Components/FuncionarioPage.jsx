@@ -35,7 +35,7 @@ export default function FuncionariosPage() {
         telefone: f.telefone || "",
         endereco: f.endereco || "-",
         departamento: f.departamento || "",
-        tipo: f.departamento?.toLowerCase() || "desconhecido",
+        tipo: f.departamento?.toLowerCase() === "medicina" ? "medico" : f.departamento?.toLowerCase() || "desconhecido",
         cargo: f.cargo || "",
         dataAdmissao: f.data_admissao ? new Date(f.data_admissao).toLocaleDateString("pt-BR") : "-",
         data_admissao: f.data_admissao || "",
@@ -72,11 +72,14 @@ export default function FuncionariosPage() {
     }
   };
 
-  const funcionariosFiltrados = funcionarios.filter(f =>
-    (f.nome.toLowerCase().includes(busca.toLowerCase()) ||
-     f.email.toLowerCase().includes(busca.toLowerCase())) &&
-    (filtro === "todos" || f.tipo === filtro)
-  );
+  const funcionariosFiltrados = funcionarios.filter(f => {
+    const termo = busca.toLowerCase();
+    const bateBusca = (f.nome || "").toLowerCase().includes(termo) ||
+                       (f.email || "").toLowerCase().includes(termo) ||
+                       (f.cpf || "").replace(/[^0-9]/g, "").includes(termo.replace(/[^0-9]/g, ""));
+    const bateFiltro = filtro === "todos" || f.tipo === filtro;
+    return bateBusca && bateFiltro;
+  });
 
   return (
     <div className="pagina-funcionarios">

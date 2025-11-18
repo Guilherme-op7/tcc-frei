@@ -22,6 +22,7 @@ export default function FiltrosConsultas({ busca, setBusca, statusFiltro, setSta
         >
           <option value="todos">Todos os Status</option>
           <option value="agendada">Agendadas</option>
+          <option value="confirmada">Confirmadas</option>
           <option value="em_andamento">Em Andamento</option>
           <option value="concluida">Concluídas</option>
           <option value="cancelada">Canceladas</option>

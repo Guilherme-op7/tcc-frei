@@ -39,9 +39,13 @@ export default function MedicamentosPage() {
     carregarMedicamentos();
   }, []);
 
-  const medicamentosFiltrados = medicamentos.filter((m) =>
-    m.nome.toLowerCase().includes(busca.toLowerCase())
-  );
+  const medicamentosFiltrados = medicamentos.filter((m) => {
+    const termo = busca.toLowerCase();
+    return (
+      (m.nome || "").toLowerCase().includes(termo) ||
+      (m.principio_ativo || "").toLowerCase().includes(termo)
+    );
+  });
 
   async function deletarMedicamento(id) {
     if (!window.confirm("Tem certeza que deseja deletar este medicamento?")) return;

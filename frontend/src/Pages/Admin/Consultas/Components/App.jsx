@@ -91,7 +91,20 @@ export default function PaginaConsultas() {
     const termo = busca.toLowerCase();
 
     const bateBusca = nomePaciente.includes(termo) || nomeMedico.includes(termo);
-    const bateStatus = statusFiltro === "todos" || (c?.status || "").toLowerCase() === statusFiltro.toLowerCase();
+    
+    // Normalizar status para comparação (remover acentos, espaços e converter para minúscula)
+    const statusConsulta = (c?.status || "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "_");
+    const statusFiltroNormalizado = statusFiltro
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "_");
+    
+    const bateStatus = statusFiltro === "todos" || statusConsulta === statusFiltroNormalizado;
 
     return bateBusca && bateStatus;
   });
