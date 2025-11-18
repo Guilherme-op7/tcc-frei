@@ -171,14 +171,14 @@ export default function PacientesPa() {
         </section>
 
         <section className="mb-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-white">
 
             <Card cor="#75B7F5" titulo="Consultas Agendadas" valor={estatisticas.consultasAgendadas || 0}>
               <Calendar className="w-6 h-6" />
             </Card>
 
             <Card cor="#65D9D3" titulo="Consultas Realizadas" valor={estatisticas.consultasRealizadas || 0}>
-              <FileText className="w-6 h-6" />
+              <FileText className="w-6 h-6 " />
             </Card>
 
             <Card cor="#9792ED" titulo="Prescrições Ativas" valor={estatisticas.prescricoesAtivas || 0}>
@@ -290,8 +290,8 @@ function Card({ cor, titulo, valor, children }) {
     <div className="rounded-xl shadow-lg p-6 text-white" style={{ background: cor }}>
       <div className="flex items-start justify-between mb-4">
         <div>
-          <p className="text-white/90">{titulo}</p>
-          <p className="text-white text-2xl font-semibold">{valor}</p>
+          <p className=" text-white!">{titulo}</p>
+          <p className="text-white! text-2xl font-semibold">{valor}</p>
         </div>
         <div className="bg-white/20 rounded-full p-3">{children}</div>
       </div>

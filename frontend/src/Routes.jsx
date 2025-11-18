@@ -14,7 +14,7 @@ import MedicosPage from "./Pages/Medicos/Medicos";
 import PaginaLanding from "./Pages/Landing/LandingPage";
 import CadastroUsuariosPage from "./Pages/Admin/CadastroUsuarios/Components/CadastroUsuariosPage";
 import MedicosAdminPage from "./Pages/Admin/Medicos/Components/MedicosPage";
-
+import Home from "./Pages/empresa_ti/pages/home/Home";
 export default function Navegacao() {
   return (
     <BrowserRouter>
@@ -87,6 +87,9 @@ export default function Navegacao() {
           </RotaProtegida>
         } />
 
+        <Route path="/empresa" element={
+          <Home /> 
+        }/>
 
       </Routes>
     </BrowserRouter>
