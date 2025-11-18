@@ -36,7 +36,7 @@ export default function TabelaMedicamentos({ medicamentos, loading, error, delet
                 <td>{m.estoque}</td>
                 <td>{m.fornecedor}</td>
                 <td>{m.validade}</td>
-                <td className="acoes">
+                <td className="">
                   <button onClick={() => editarMedicamento(m)}>
                     <Edit size={16} />
                   </button>
